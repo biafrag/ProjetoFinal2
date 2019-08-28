@@ -26,6 +26,12 @@ private slots:
 
     void on_TUBButton_clicked();
 
+    void on_EQU3button_clicked();
+
+    void on_EST1button_clicked();
+
+    void on_CIVbutton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

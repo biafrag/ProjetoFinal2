@@ -8,6 +8,7 @@
 void readFile(std::string fileName, std::vector<QVector3D>& points, std::vector<QVector3D>& normals,std::vector<int>& indexPoints, std::vector<int>& indexNormals)
 {
     int tam = points.size();
+    std::cout<<"Tamanho: "<<tam<<std::endl;
     std::string line;
     std::string type = " ";
     std::ifstream myfile;

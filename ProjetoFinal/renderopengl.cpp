@@ -145,10 +145,10 @@ void RenderOpengl::initializeGL()
 
     //setFile({"../../ModeloObj/modelosObj/U-2300-EQU.obj","../ModeloObj/modelosObj/U-2300-EST.obj"});
 
-    setMode(MeshTypes::TUB);
+    setMode(MeshTypes::PLATAFORMA);
     _program->bind();
 
-    createVAO();
+    //createVAO();
     printThings();
 
 
@@ -162,6 +162,7 @@ void RenderOpengl::paintGL()
     //Dando bind no programa e no vao
     _program->bind();
     _vao.bind();
+   // createVAO();
     glViewport(0, 0, cam.width, cam.height);
     //Definindo matriz view e projection
      _view.setToIdentity();
@@ -262,6 +263,7 @@ void RenderOpengl::setMode(MeshTypes type)
 
 void RenderOpengl::createVAO()
 {
+    makeCurrent();
     if(!_vao.isCreated())
     {
         //Criando e configurando vao
@@ -275,6 +277,7 @@ void RenderOpengl::createVAO()
     glBufferData(GL_ARRAY_BUFFER, _points.size()*sizeof(QVector3D), &_points[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
+
 
 
     //Criando buffer de normais
@@ -291,6 +294,7 @@ void RenderOpengl::createVAO()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _meshBuffer);
 
 }
+
 void RenderOpengl::printThings()
 {
 //    printf("Points: \n");

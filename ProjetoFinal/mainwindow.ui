@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
-    <height>683</height>
+    <width>918</width>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,9 +42,30 @@
        </widget>
       </item>
       <item>
+       <widget class="QRadioButton" name="EQU3button">
+        <property name="text">
+         <string>EQU3</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="EST1button">
+        <property name="text">
+         <string>EST1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="TUBButton">
         <property name="text">
          <string>TUB</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="CIVbutton">
+        <property name="text">
+         <string>CIV</string>
         </property>
        </widget>
       </item>
@@ -67,8 +88,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>912</width>
-     <height>17</height>
+     <width>918</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
