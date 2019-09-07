@@ -33,7 +33,8 @@ HEADERS += \
     renderopengl.h \
     reader.h \
     readeroff.h \
-    meshtypes.h
+    meshtypes.h \
+    materialtypes.h
 
 FORMS += \
         mainwindow.ui

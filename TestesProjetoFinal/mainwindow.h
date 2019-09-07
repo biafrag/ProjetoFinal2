@@ -17,19 +17,23 @@ public:
 
 private slots:
 
-    void on_TUBButton_clicked();
-
-    void on_EQU3button_clicked();
-
-    void on_EST1button_clicked();
-
-    void on_CIVbutton_clicked();
-
     void on_ESFERAbutton_clicked();
 
     void on_CUBObutton_clicked();
 
     void on_DODECAEDRObutton_clicked();
+
+    void on_BRINCOSbutton_clicked();
+
+    void on_VENTILADORbutton_clicked();
+
+    void on_LATAButton_clicked();
+
+    void on_ROBObutton_clicked();
+
+    void on_verticalSlider_actionTriggered(int action);
+
+    void on_verticalSlider_valueChanged(int value);
 
 private:
     Ui::MainWindow *ui;

@@ -113,6 +113,8 @@ void RenderOpengl::getMinMaxMesh()
    // cam.at = QVector3D(medium.x(),medium.y(),0.f);
     //cam.eye =  QVector3D(medium.x(),medium.y(),4*_maxMeshPoint.z());
 
+    cam.eye =  QVector3D(0.f,0.f,4*_maxMeshPoint.z());
+
     for(int i = 0; i < _points.size(); i++)
     {
         _points[i] = _points[i] - medium;
@@ -191,13 +193,9 @@ void RenderOpengl::paintGL()
     //inversa transposta da model-view
     _program->setUniformValue("normalMatrix", mv.inverted().transposed());
     //Variáveis de material e luz
-    _program->setUniformValue("light", v * cam.eye);
+    _program->setUniformValue("light", v * QVector3D(5,5,2));
 
-    //Bola
-    _program->setUniformValue("material.ambient", QVector3D(0.2f,0.2f,0.2f));
-    _program->setUniformValue("material.diffuse", QVector3D(0.8f,0.8f,0.8f));
-    _program->setUniformValue("material.specular", QVector3D(1.0f,1.0f,1.0f));
-    _program->setUniformValue("material.shininess", 100.0f);
+    setMaterialProperties();
 
     //Desenhando os triângulos que formam o cubo
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indexPoints.size()), GL_UNSIGNED_INT, nullptr);
@@ -225,37 +223,30 @@ void RenderOpengl::setMode(MeshTypes type)
     {
         setFile({"../../MalhasTeste/dodecaedro.obj"});
     }
-    else if (type == MeshTypes::EQU3)
+    else if (type == MeshTypes::VENTILADOR)
     {
-         setFile({"../../ModeloObj/modelosObj/U-4530-EQU.obj"});
+         setFile({"../../MalhasTeste/ventilator.obj"});
     }
-    else if (type == MeshTypes::EQU4)
+    else if (type == MeshTypes::BRINCOS)
     {
-         setFile({"../../ModeloObj/modelosObj/U-4710-EQU.obj"});
+         setFile({"../../MalhasTeste/earings.obj"});
     }
-    else if (type == MeshTypes::EST1)
+    else if (type == MeshTypes::LATA)
     {
-        setFile({"../../ModeloObj/modelosObj/U-2300-EST.obj"});
+        setFile({{"../../MalhasTeste/lata.obj"}});
     }
-    else if (type == MeshTypes::EST2)
+    else if (type == MeshTypes::ROBO)
     {
-        setFile({"../../ModeloObj/modelosObj/U-4710-EST.obj"});
-    }
-    else if (type == MeshTypes::TUB)
-    {
-        setFile({"../../ModeloObj/modelosObj/U-4530-TUB.obj"});
-    }
-    else if (type == MeshTypes::TUBDET)
-    {
-        setFile({"../../ModeloObj/modelosObj/U-4710-TUB-DETALHAMENTO.obj"});
-    }
-    else if (type == MeshTypes::CIV)
-    {
-        setFile({"../../ModeloObj/modelosObj/U-5122-CIV.obj"});
+        setFile({{"../../MalhasTeste/robot.obj"}});
     }
 
     createVAO();
 
+}
+
+void RenderOpengl::setMaterial(MaterialTypes type)
+{
+    _materialType = type;
 }
 
 
@@ -349,6 +340,45 @@ QVector3D RenderOpengl::Points_Sphere(QVector3D pointT)
         pointf.setZ(sqrt(1.0-r));
     }
     return pointf;
+
+}
+
+void RenderOpengl::setMaterialProperties()
+{
+    makeCurrent();
+    switch (_materialType) {
+    case MaterialTypes::SILVER:
+        //Silver
+        _program->setUniformValue("material.ambient", QVector4D(0.19225, 0.19225, 0.19225,1));
+        _program->setUniformValue("material.diffuse", QVector4D(0.50754, 0.50754, 0.50754,1));
+        _program->setUniformValue("material.specular", QVector4D(0.508273, 0.508273, 0.508273,1));
+        _program->setUniformValue("material.shininess", 51.2f);
+        break;
+    case MaterialTypes::POLISHEDSILVER:
+        //Polished Silver
+        _program->setUniformValue("material.ambient", QVector4D(0.23125, 0.23125, 0.23125,1 ));
+        _program->setUniformValue("material.diffuse", QVector4D(0.2775, 0.2775, 0.2775,1));
+        _program->setUniformValue("material.specular", QVector4D(0.773911, 0.773911, 0.773911,1 ));
+        _program->setUniformValue("material.shininess", 89.6f);
+        break;
+    case MaterialTypes::GOLD:
+        //Gold
+        _program->setUniformValue("material.ambient", QVector4D(0.24725, 0.1995, 0.0745, 1 ));
+        _program->setUniformValue("material.diffuse", QVector4D(0.75164, 0.60648, 0.22648, 1));
+        _program->setUniformValue("material.specular", QVector4D(0.628281, 0.555802, 0.366065, 1 ));
+        _program->setUniformValue("material.shininess", 51.2f);
+        break;
+    case MaterialTypes::COPPER:
+        //Copper
+        _program->setUniformValue("material.ambient", QVector4D(0.19125, 0.0735, 0.0225, 1 ));
+        _program->setUniformValue("material.diffuse", QVector4D(0.7038, 0.27048, 0.0828, 1));
+        _program->setUniformValue("material.specular", QVector4D(0.256777, 0.137622, 0.086014, 1 ));
+        _program->setUniformValue("material.shininess", 12.8f);
+        break;
+
+    default:
+        break;
+    }
 
 }
 

@@ -12,6 +12,7 @@
 
 #include <glm/glm.hpp>
 #include "meshtypes.h"
+#include "materialtypes.h"
 
 class RenderOpengl:
         public QOpenGLWidget
@@ -25,6 +26,7 @@ public:
     void paintGL() override;
 
     void setMode(MeshTypes type);
+    void setMaterial(MaterialTypes type);
 
 private:
     //Classe do qt que permite os shaders serem linkados e usados
@@ -56,6 +58,7 @@ private:
     std::vector<int> _indexNormals; //vetor com os indices que formam os triângulos que serão renderizados
     QVector3D _maxMeshPoint;
     QVector3D _minMeshPoint;
+    MaterialTypes _materialType{MaterialTypes::COPPER};
 
     QVector3D _oldPoint;
     //Arcball
@@ -69,6 +72,7 @@ private:
     virtual void keyPressEvent(QKeyEvent* event);
     double radius; //Sphere Radius
     QVector3D Points_Sphere(QVector3D pointT);
+    void setMaterialProperties();
 
     void getMinMaxMesh();
     void printThings();
