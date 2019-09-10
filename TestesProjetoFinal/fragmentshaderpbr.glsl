@@ -1,8 +1,4 @@
 #version 410 core
-uniform vec3  albedo;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
 const float PI = 3.14159265359;
 
 struct Material //Propriedades do material
@@ -12,6 +8,15 @@ struct Material //Propriedades do material
     vec4 specular;
     float shininess;
 };
+
+const int NR_LIGHTS = 4;
+
+struct Light {
+    vec3 Position;
+    vec3 Color;
+};
+
+uniform Light lights[NR_LIGHTS]; //Vetor de luzes na posição do olho
 
 uniform Material material;
 
@@ -62,6 +67,10 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 }
 void main()
 {
+    float metallic = 0.5f;
+    float roughness = 0.5f;
+    float ao = 1.0;
+    vec3  albedo = vec3 (0.5f,0.0f,0.0f);
     vec3 N = normalize(fragNormal);
     vec3 V = normalize(-fragPos);
     vec3 F0 = vec3(0.04);
@@ -69,14 +78,15 @@ void main()
 
       // reflectance equation
       vec3 Lo = vec3(0.0);
-      for(int i = 0; i < 4; ++i)
+      vec3 specular;
+      for(int i = 0; i < 4; i++)
       {
           // calculate per-light radiance
-          vec3 L = normalize(lightPositions[i] - fragPos);
+          vec3 L = normalize(lights[i].Position - fragPos);
           vec3 H = normalize(V + L);
-          float distance    = length(lightPositions[i] - fragPos);
+          float distance   = length(lights[i].Position - fragPos);
           float attenuation = 1.0 / (distance * distance);
-          vec3 radiance  =  attenuation;
+          vec3 radiance = vec3(1,1,1) * attenuation;
 
           // cook-torrance brdf
           float NDF = DistributionGGX(N, H, roughness);
@@ -89,18 +99,19 @@ void main()
 
           vec3 numerator    = NDF * G * F;
           float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-          vec3 specular     = numerator / max(denominator, 0.001);
+          specular     = numerator / max(denominator, 0.001);
 
           // add to outgoing radiance Lo
           float NdotL = max(dot(N, L), 0.0);
           Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+
+
       }
-
-      vec3 ambient = vec3(0.03) * albedo * ao;
+      vec3 ambient = vec3(0.05) * albedo * ao;
       vec3 color = ambient + Lo;
-
       color = color / (color + vec3(1.0));
-      color = pow(color, vec3(1.0/2.2));
+      color = pow(color, vec3(1.0/2.2));;
 
       finalColor = vec4(color, 1.0);
+
 }

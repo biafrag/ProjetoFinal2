@@ -256,6 +256,7 @@ void RenderOpengl::initializeGL()
 
     makeCurrent();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClearColor(0,0,0,1);
 
@@ -263,7 +264,7 @@ void RenderOpengl::initializeGL()
     //Adicionando shaders ao programa
 
     _program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexshader.glsl");
-    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshader.glsl");
+    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshaderpbr.glsl");
 
     //Linka shaders que foram adicionados ao programa
     _program->link();
@@ -324,6 +325,11 @@ void RenderOpengl::paintGL()
     //Variáveis de material e luz
     _program->setUniformValue("light", v * QVector3D(5,5,2));
 
+    _program->setUniformValue("lights[0].Position", v*QVector3D(1,1,2));
+    _program->setUniformValue("lights[1].Position",  v*QVector3D(-1,1,2));
+    _program->setUniformValue("lights[2].Position",  v*QVector3D(1,-1,2));
+    _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
+
     //Ativar e linkar a textura
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _textureID);
@@ -336,6 +342,7 @@ void RenderOpengl::paintGL()
     //Desenhando os triângulos que formam o cubo
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indexPoints.size()), GL_UNSIGNED_INT, nullptr);
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+
     update();
 }
 
