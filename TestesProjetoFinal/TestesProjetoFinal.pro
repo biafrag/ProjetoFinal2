@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -34,7 +34,8 @@ HEADERS += \
     reader.h \
     readeroff.h \
     meshtypes.h \
-    materialtypes.h
+    materialtypes.h \
+    reader2.h
 
 FORMS += \
         mainwindow.ui

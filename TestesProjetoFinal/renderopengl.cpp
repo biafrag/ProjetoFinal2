@@ -1,7 +1,8 @@
 #include "renderopengl.h"
 #include <QImage>
-//#include<QGLWidget>
+#include<QGLWidget>
 #include "reader.h"
+#include "reader2.h"
 #include "readeroff.h"
 #include "math.h"
 #include <glm/ext.hpp>
@@ -28,10 +29,136 @@ RenderOpengl::~RenderOpengl()
     glDeleteBuffers(1, &_meshBuffer);
     glDeleteBuffers(1, &_normalsBuffer);
     glDeleteBuffers(1, &_pointsBuffer);
+    glDeleteBuffers(1, &_texCoordsBuffer);
+}
+
+void RenderOpengl::createTexture(const std::string& imagePath)
+{
+    //Gerando textura e recebendo ID dessa textura
+    glGenTextures(1, &_textureID);
+
+    //Linkar (bind) a textura criada
+    glBindTexture(GL_TEXTURE_2D, _textureID);
+
+    //Abrir arquivo de imagem com o Qt
+    QImage texImage = QGLWidget::convertToGLFormat(QImage(imagePath.c_str()));
+    //QImage texImage(imagePath.c_str());
+
+    //Enviar a imagem para o OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
+                 texImage.width(), texImage.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, texImage.bits());
+
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+//Organiza dados, duplica vértices que tem que duplicar
+void RenderOpengl::organizingData()
+{
+    std::vector<QVector3D> points; //Vetor de cada ponto do meu objeto que será renderizado
+    std::vector<QVector3D> normals; //Vetor de normal pra cada vértice do meu cubo
+    std::vector<QVector2D> texCoords; //Vetor de coordenadas de textura
+    std::vector<int> indexes; //Vetor de cada ponto do meu objeto que será renderizado
+
+    for(int i = 0; i<_indexPoints.size(); i++)
+    {
+        int idP = _indexPoints[i];
+        int idN = _indexNormals[i];
+        int idT = _indexTex[i];
+
+        points.push_back(_points[idP]);
+        normals.push_back(_normals[idN]);
+        texCoords.push_back(_texCoords[idT]);
+        indexes.push_back(i);
+    }
+
+    _points = points;
+    _normals = normals;
+    _texCoords = texCoords;
+    _indexPoints = indexes;
+
+}
+
+//Transforma malha de quads em malha de triângulos
+void RenderOpengl::quadToTriangleMesh(std::vector<int>& indexPointsQuad, std::vector<int>& indexPointsTriangle, std::vector<int>& indexNormalsTriangle, std::vector<int>& indexTexTriangle, std::vector<int>& indexNormalsQuad,std::vector<int>& indexTexQuad)
+{
+    //Checar
+    std::vector<unsigned int> triangleMesh;
+
+    unsigned int numberofQuads = static_cast<unsigned int>(indexPointsQuad.size() / 4);
+
+    //Every four elements it's a quadrilateral element
+    for(unsigned int i = 0; i < numberofQuads; i++)
+    {
+        unsigned int v0 = indexPointsQuad[4 * i];
+        unsigned int v1 = indexPointsQuad[4 * i + 1];
+        unsigned int v2 = indexPointsQuad[4 * i + 2];
+        unsigned int v3 = indexPointsQuad[4 * i + 3];
+
+        unsigned int n0 = indexNormalsQuad[4 * i];
+        unsigned int n1 = indexNormalsQuad[4 * i + 1];
+        unsigned int n2 = indexNormalsQuad[4 * i + 2];
+        unsigned int n3 = indexNormalsQuad[4 * i + 3];
+
+        unsigned int t0 = indexTexQuad[4 * i];
+        unsigned int t1 = indexTexQuad[4 * i + 1];
+        unsigned int t2 = indexTexQuad[4 * i + 2];
+        unsigned int t3 = indexTexQuad[4 * i + 3];
+
+        //First triangle from quadrilateral element
+        _indexPoints.push_back(v0);
+        _indexPoints.push_back(v1);
+        _indexPoints.push_back(v3);
+
+        //Second triangle from quadrilateral element
+        _indexPoints.push_back(v2);
+        _indexPoints.push_back(v3);
+        _indexPoints.push_back(v1);
+
+
+        //First triangle from quadrilateral element
+        _indexNormals.push_back(n0);
+        _indexNormals.push_back(n1);
+        _indexNormals.push_back(n3);
+
+        //Second triangle from quadrilateral element
+        _indexNormals.push_back(n2);
+        _indexNormals.push_back(n3);
+        _indexNormals.push_back(n1);
+
+        //First triangle from quadrilateral element
+        _indexTex.push_back(t0);
+        _indexTex.push_back(t1);
+        _indexTex.push_back(t3);
+
+        //Second triangle from quadrilateral element
+        _indexTex.push_back(t2);
+        _indexTex.push_back(t3);
+        _indexTex.push_back(t1);
+
+    }
+
+    for(int i = 0; i<indexPointsTriangle.size(); i++)
+    {
+        _indexPoints.push_back(indexPointsTriangle[i]);
+        _indexNormals.push_back(indexNormalsTriangle[i]);
+        _indexTex.push_back(indexTexTriangle[i]);
+    }
+
 }
 
 void RenderOpengl::setFile(std::vector<std::string> fileNames)
 {
+        std::vector<int> indexPointsQuad;
+        std::vector<int> indexPointsTriangle;
+        std::vector<int> indexNormalsTriangle;
+        std::vector<int> indexNormalsQuads;
+        std::vector<int> indexTexTriangle;
+        std::vector<int> indexTexQuads;
         _points.clear();
         _normals.clear();
         _indexPoints.clear();
@@ -40,8 +167,10 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
         for(unsigned int i = 0; i < fileNames.size(); i++)
         {
             std::cout << fileNames[i] << std::endl;
-            readFile(fileNames[i],_points,_normals,_indexPoints,_indexNormals);
+            readFile2(fileNames[i],_points,_normals,_texCoords,indexPointsTriangle,indexPointsQuad,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
         }
+        quadToTriangleMesh(indexPointsQuad, indexPointsTriangle,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
+        organizingData();
         getMinMaxMesh();
         _model = glm::mat4x4(1.0);
         //paintGL();
@@ -148,9 +277,9 @@ void RenderOpengl::initializeGL()
 
     setMode(MeshTypes::ESFERA);
     _program->bind();
-
+    createTexture("../../MalhasTeste/Texturas/golfball.png");
     //createVAO();
-    printThings();
+    //printThings();
 
 
 }
@@ -195,6 +324,13 @@ void RenderOpengl::paintGL()
     //Variáveis de material e luz
     _program->setUniformValue("light", v * QVector3D(5,5,2));
 
+    //Ativar e linkar a textura
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _textureID);
+    _program->setUniformValue("sampler", 0);
+    GLint textureLocation = glGetUniformLocation(_program->programId(), "sampler");
+    glUniform1i(textureLocation, 0);
+
     setMaterialProperties();
 
     //Desenhando os triângulos que formam o cubo
@@ -213,7 +349,7 @@ void RenderOpengl::setMode(MeshTypes type)
 
     if(type == MeshTypes::ESFERA)
     {
-        setFile({"../../MalhasTeste/sphere.obj"});
+        setFile({"../../MalhasTeste/MalhasComTextura/golfball.obj"});
     }
     else if (type == MeshTypes::CUBO)
     {
@@ -276,6 +412,13 @@ void RenderOpengl::createVAO()
     glBufferData(GL_ARRAY_BUFFER, _normals.size()*sizeof(QVector3D), &_normals[0], GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
+
+    //Criando buffers de textura
+    glGenBuffers(1, &_texCoordsBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER,_texCoordsBuffer);
+    glBufferData(GL_ARRAY_BUFFER, _texCoords.size()*sizeof(QVector2D), &_texCoords[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(2);
 
     //Criando buffers de indexPoints
     glGenBuffers(1, &_meshBuffer);

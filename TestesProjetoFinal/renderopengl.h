@@ -54,8 +54,10 @@ private:
     void createVAO(); //Cria VAO
     std::vector<QVector3D> _points; //Vetor de cada ponto do meu objeto que será renderizado
     std::vector<QVector3D> _normals; //Vetor de normal pra cada vértice do meu cubo
+    std::vector<QVector2D> _texCoords; //Vetor de coordenadas de textura
     std::vector<int> _indexPoints; //vetor com os indices que formam os triângulos que serão renderizados
     std::vector<int> _indexNormals; //vetor com os indices que formam os triângulos que serão renderizados
+    std::vector<int> _indexTex; //vetor com os indices que formam os triângulos que serão renderizados
     QVector3D _maxMeshPoint;
     QVector3D _minMeshPoint;
     MaterialTypes _materialType{MaterialTypes::COPPER};
@@ -73,15 +75,19 @@ private:
     double radius; //Sphere Radius
     QVector3D Points_Sphere(QVector3D pointT);
     void setMaterialProperties();
+    void createTexture(const std::string &imagePath); //Seta textura difusa
+    void quadToTriangleMesh(std::vector<int> &indexPointsQuad, std::vector<int> &indexPointsTriangle, std::vector<int> &indexNormalsTriangles, std::vector<int> &indexTexTriangles, std::vector<int> &indexNormalsQuad, std::vector<int> &indexTexQuad); //Transforma malha de quads em malha de triângulos
+    void organizingData();
 
     void getMinMaxMesh();
     void printThings();
     void setFile(std::vector<std::string> fileNames);
-    void organizingData();
     //Buffers
     unsigned int _pointsBuffer = static_cast<unsigned int>(-1);
     unsigned int _normalsBuffer = static_cast<unsigned int>(-1);
     unsigned int _meshBuffer = static_cast<unsigned int>(-1);
+    unsigned int _texCoordsBuffer = static_cast<unsigned int>(-1);
+    unsigned int _textureID;
 };
 
 #endif // RENDER_H
