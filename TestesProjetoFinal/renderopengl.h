@@ -27,6 +27,7 @@ public:
 
     void setMode(MeshTypes type);
     void setMaterial(MaterialTypes type);
+    void setPBR(int isPBR);
 
 private:
     //Classe do qt que permite os shaders serem linkados e usados
@@ -81,6 +82,7 @@ private:
 
     void getMinMaxMesh();
     void printThings();
+    void createPBRTextures(const std::vector<std::string> imagePath);
     void setFile(std::vector<std::string> fileNames);
     //Buffers
     unsigned int _pointsBuffer = static_cast<unsigned int>(-1);
@@ -88,6 +90,13 @@ private:
     unsigned int _meshBuffer = static_cast<unsigned int>(-1);
     unsigned int _texCoordsBuffer = static_cast<unsigned int>(-1);
     unsigned int _textureID;
+
+    unsigned int _textureAlbedo;
+    unsigned int _textureMetallic;
+    unsigned int _textureAo;
+    unsigned int _textureRoughness;
+
+    int _isPBR{0};
 };
 
 #endif // RENDER_H

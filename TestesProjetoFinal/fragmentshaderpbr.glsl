@@ -22,11 +22,16 @@ uniform Material material;
 
 //Variaveis de entrada
 uniform vec3 light; //Posição da luz no espaço tangente
+uniform int isPBR; //Posição da luz no espaço tangente
 in vec3 fragNormal;
 in vec3 fragPos;
 in vec2 UV;
 out vec4 finalColor; // Cor final do objeto
-uniform sampler2D sampler; //Textura difusa
+
+uniform sampler2D Albedo; //Textura difusa
+uniform sampler2D Metallic; //Textura difusa
+uniform sampler2D Ao; //Textura difusa
+uniform sampler2D Roughness; //Textura difusa
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -67,51 +72,80 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 }
 void main()
 {
-    float metallic = 0.5f;
-    float roughness = 0.5f;
-    float ao = 1.0;
-    vec3  albedo = vec3 (0.5f,0.0f,0.0f);
-    vec3 N = normalize(fragNormal);
-    vec3 V = normalize(-fragPos);
-    vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, metallic);
+//    float metallic = 0.5f;
+//    float roughness = 0.5f;
+//    float ao = 1.0;
+//    vec3  albedo = vec3 (0.5f,0.0f,0.0f);
 
-      // reflectance equation
-      vec3 Lo = vec3(0.0);
-      vec3 specular;
-      for(int i = 0; i < 4; i++)
-      {
-          // calculate per-light radiance
-          vec3 L = normalize(lights[i].Position - fragPos);
-          vec3 H = normalize(V + L);
-          float distance   = length(lights[i].Position - fragPos);
-          float attenuation = 1.0 / (distance * distance);
-          vec3 radiance = vec3(1,1,1) * attenuation;
+    if(isPBR == 1)
+    {
+        vec3 albedo = texture(Albedo,UV).rgb;
+        float metallic = texture(Metallic,UV).r;
+        float roughness = texture(Roughness,UV).r;
+        float ao = texture(Ao,UV).r;
 
-          // cook-torrance brdf
-          float NDF = DistributionGGX(N, H, roughness);
-          float G   = GeometrySmith(N, V, L, roughness);
-          vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        vec3 N = normalize(fragNormal);
+        vec3 V = normalize(-fragPos);
+        vec3 F0 = vec3(0.04);
+        F0 = mix(F0, albedo, metallic);
 
-          vec3 kS = F;
-          vec3 kD = vec3(1.0) - kS;
-          kD *= 1.0 - metallic;
+          // reflectance equation
+          vec3 Lo = vec3(0.0);
+          vec3 specular;
+          for(int i = 0; i < 4; i++)
+          {
+              // calculate per-light radiance
+              vec3 L = normalize(lights[i].Position - fragPos);
+              vec3 H = normalize(V + L);
+              float distance   = length(lights[i].Position - fragPos);
+              float attenuation = 1.0 / (distance * distance);
+              vec3 radiance = vec3(1,1,1) * attenuation;
 
-          vec3 numerator    = NDF * G * F;
-          float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-          specular     = numerator / max(denominator, 0.001);
+              // cook-torrance brdf
+              float NDF = DistributionGGX(N, H, roughness);
+              float G   = GeometrySmith(N, V, L, roughness);
+              vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-          // add to outgoing radiance Lo
-          float NdotL = max(dot(N, L), 0.0);
-          Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+              vec3 kS = F;
+              vec3 kD = vec3(1.0) - kS;
+              kD *= 1.0 - metallic;
+
+              vec3 numerator    = NDF * G * F;
+              float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+              specular     = numerator / max(denominator, 0.001);
+
+              // add to outgoing radiance Lo
+              float NdotL = max(dot(N, L), 0.0);
+              Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
 
-      }
-      vec3 ambient = vec3(0.05) * albedo * ao;
-      vec3 color = ambient + Lo;
-      color = color / (color + vec3(1.0));
-      color = pow(color, vec3(1.0/2.2));;
+          }
+          vec3 ambient = vec3(0.05) * albedo * ao;
+          vec3 color = ambient + Lo;
+          color = color / (color + vec3(1.0));
+          color = pow(color, vec3(1.0/2.2));;
 
-      finalColor = vec4(color, 1.0);
+          finalColor = vec4(color, 1.0);
+        //finalColor = vec4(texture(Albedo,UV).rbg, 1.0);
+    }
+    else
+    {
+        //vec3 colorNoise;
+        vec4 ambient = material.ambient;
+        vec3 N = normalize(fragNormal);
+        vec3 V = normalize(-fragPos);
+        vec3 L = normalize(light - fragPos);
 
+        vec4 diffuse = vec4(0.0,0.0,0.0,1);
+        vec4 specular = vec4(0.0,0.0,0.0,1);
+        float iDif = max(0,dot(L,N));
+
+        diffuse = iDif * material.diffuse;
+
+        vec3 r = normalize(reflect(-L, N));
+        float iSpec = pow(max(dot(V,r),0.0), material.shininess);
+        specular = iSpec * material.specular;
+
+        finalColor = diffuse + ambient + specular;
+    }
 }

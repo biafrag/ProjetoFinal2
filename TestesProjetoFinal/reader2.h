@@ -12,6 +12,8 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
     std::string line;
     std::string type = " ";
     std::ifstream myfile (fileName);
+    std::cout<<fileName<<std::endl;
+    std::cout<<texCoords.size()<<std::endl;
     while (1)
     {
       if(myfile.eof())

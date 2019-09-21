@@ -28,37 +28,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="CUBObutton">
-        <property name="text">
-         <string>CUBO</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="DODECAEDRObutton">
-        <property name="text">
-         <string>DODECAEDRO</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="VENTILADORbutton">
-        <property name="text">
-         <string>VENTILADOR</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QRadioButton" name="BRINCOSbutton">
         <property name="text">
          <string>BRINCOS</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="LATAButton">
-        <property name="text">
-         <string>LATA</string>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -129,6 +104,13 @@
       </property>
       <property name="tickPosition">
        <enum>QSlider::TicksAbove</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>PBR</string>
       </property>
      </widget>
     </item>

@@ -87,3 +87,15 @@ void MainWindow::on_verticalSlider_valueChanged(int value)
         break;
     }
 }
+
+void MainWindow::on_checkBox_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->openGLWidget->setPBR(1);
+    }
+    else
+    {
+        ui->openGLWidget->setPBR(0);
+    }
+}

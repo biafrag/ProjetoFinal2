@@ -16,13 +16,13 @@ in vec3 fragNormal;
 in vec3 fragPos;
 in vec2 UV;
 out vec4 finalColor; // Cor final do objeto
-uniform sampler2D sampler; //Textura difusa
+uniform sampler2D Albedo; //Textura difusa
 
 
 void main()
 {
     //vec3 colorNoise;
-    vec4 ambient = material.ambient * texture(sampler,UV);
+    vec4 ambient = material.ambient;
     vec3 N = normalize(fragNormal);
     vec3 V = normalize(-fragPos);
     vec3 L = normalize(light - fragPos);
@@ -31,7 +31,7 @@ void main()
     vec4 specular = vec4(0.0,0.0,0.0,1);
     float iDif = max(0,dot(L,N));
 
-    diffuse = iDif * material.diffuse * texture(sampler,UV);
+    diffuse = iDif * material.diffuse;
 
     vec3 r = normalize(reflect(-L, N));
     float iSpec = pow(max(dot(V,r),0.0), material.shininess);

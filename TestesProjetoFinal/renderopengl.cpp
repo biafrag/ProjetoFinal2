@@ -161,8 +161,10 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
         std::vector<int> indexTexQuads;
         _points.clear();
         _normals.clear();
+        _texCoords.clear();
         _indexPoints.clear();
         _indexNormals.clear();
+        _indexTex.clear();
 
         for(unsigned int i = 0; i < fileNames.size(); i++)
         {
@@ -279,6 +281,7 @@ void RenderOpengl::initializeGL()
     setMode(MeshTypes::ESFERA);
     _program->bind();
     createTexture("../../MalhasTeste/Texturas/golfball.png");
+    createPBRTextures({"../../MalhasTeste/Texturas/albedo.png","../../MalhasTeste/Texturas/metalness.png","../../MalhasTeste/Texturas/roughness.png","../../MalhasTeste/Texturas/ao.png"});
     //createVAO();
     //printThings();
 
@@ -330,12 +333,34 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("lights[2].Position",  v*QVector3D(1,-1,2));
     _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
 
+    _program->setUniformValue("isPBR",  _isPBR);
     //Ativar e linkar a textura
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, _textureID);
+//    _program->setUniformValue("sampler", 0);
+//    GLint textureLocation = glGetUniformLocation(_program->programId(), "sampler");
+//    glUniform1i(textureLocation, 0);
+
+
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _textureID);
-    _program->setUniformValue("sampler", 0);
-    GLint textureLocation = glGetUniformLocation(_program->programId(), "sampler");
-    glUniform1i(textureLocation, 0);
+    glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
+    unsigned int albedoLocation = glGetUniformLocation(_program->programId(), "Albedo");
+    glUniform1i(albedoLocation, 0);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, _textureMetallic);
+    unsigned int metallicLocation = glGetUniformLocation(_program->programId(), "Metallic");
+    glUniform1i(metallicLocation, 1);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, _textureRoughness);
+    unsigned int roughnessLocation = glGetUniformLocation(_program->programId(), "Roughness");
+    glUniform1i(roughnessLocation, 2);
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, _textureAo);
+    unsigned int aoLocation = glGetUniformLocation(_program->programId(), "Ao");
+    glUniform1i(aoLocation, 3);
 
     setMaterialProperties();
 
@@ -353,6 +378,8 @@ void RenderOpengl::setMode(MeshTypes type)
     _normals.clear();
     _indexNormals.clear();
     _indexPoints.clear();
+    _texCoords.clear();
+    _indexTex.clear();
 
     if(type == MeshTypes::ESFERA)
     {
@@ -376,11 +403,11 @@ void RenderOpengl::setMode(MeshTypes type)
     }
     else if (type == MeshTypes::LATA)
     {
-        setFile({{"../../MalhasTeste/lata.obj"}});
+        setFile({{"../../MalhasTeste//MalhasComTextura/lata.obj"}});
     }
     else if (type == MeshTypes::ROBO)
     {
-        setFile({{"../../MalhasTeste/robot.obj"}});
+        setFile({{"../../MalhasTeste/MalhasComTextura/robot.obj"}});
     }
 
     createVAO();
@@ -390,6 +417,11 @@ void RenderOpengl::setMode(MeshTypes type)
 void RenderOpengl::setMaterial(MaterialTypes type)
 {
     _materialType = type;
+}
+
+void RenderOpengl::setPBR(int isPBR)
+{
+    _isPBR = isPBR;
 }
 
 
@@ -457,6 +489,97 @@ void RenderOpengl::printThings()
 //        printf( "%d \n",_indexPoints[i]);
 //    }
 
+}
+
+void RenderOpengl::createPBRTextures(const std::vector<std::string> imagePath)
+{
+    //TEXTURA ALBEDO
+    //Gerando textura e recebendo ID dessa textura
+    glGenTextures(1, &_textureAlbedo);
+
+    //Linkar (bind) a textura criada
+    glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
+
+    //Abrir arquivo de imagem com o Qt
+    QImage texImage = QGLWidget::convertToGLFormat(QImage(imagePath[0].c_str()));
+    //QImage texImage(imagePath.c_str());
+
+    //Enviar a imagem para o OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
+                 texImage.width(), texImage.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, texImage.bits());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    //TEXTURA METALLIC
+
+    //Gerando textura e recebendo ID dessa textura
+    glGenTextures(1, &_textureMetallic);
+
+    //Linkar (bind) a textura criada
+    glBindTexture(GL_TEXTURE_2D, _textureMetallic);
+
+    std::cout<< imagePath[1]<<std::endl;
+    //Abrir arquivo de imagem com o Qt
+    texImage = QGLWidget::convertToGLFormat(QImage(imagePath[1].c_str()));
+    //QImage texImage(imagePath.c_str());
+
+    //Enviar a imagem para o OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
+                 texImage.width(), texImage.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, texImage.bits());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    //TEXTURA ROUGHNESS
+
+    //Gerando textura e recebendo ID dessa textura
+    glGenTextures(1, &_textureRoughness);
+
+    //Linkar (bind) a textura criada
+    glBindTexture(GL_TEXTURE_2D, _textureRoughness);
+
+    //Abrir arquivo de imagem com o Qt
+    texImage = QGLWidget::convertToGLFormat(QImage(imagePath[2].c_str()));
+    //QImage texImage(imagePath.c_str());
+
+    //Enviar a imagem para o OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
+                 texImage.width(), texImage.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, texImage.bits());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    //TEXTURA AO
+
+    //Gerando textura e recebendo ID dessa textura
+    glGenTextures(1, &_textureAo);
+
+    //Linkar (bind) a textura criada
+    glBindTexture(GL_TEXTURE_2D, _textureAo);
+
+    //Abrir arquivo de imagem com o Qt
+    texImage = QGLWidget::convertToGLFormat(QImage(imagePath[3].c_str()));
+    //QImage texImage(imagePath.c_str());
+
+    //Enviar a imagem para o OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
+                 texImage.width(), texImage.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, texImage.bits());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 void RenderOpengl::resizeGL(int w, int h)
 {

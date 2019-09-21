@@ -35,6 +35,8 @@ private slots:
 
     void on_verticalSlider_valueChanged(int value);
 
+    void on_checkBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 };
