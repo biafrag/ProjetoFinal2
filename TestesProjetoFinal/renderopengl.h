@@ -28,6 +28,7 @@ public:
     void setMode(MeshTypes type);
     void setMaterial(MaterialTypes type);
     void setPBR(int isPBR);
+    void setOption(Options option);
 
 private:
     //Classe do qt que permite os shaders serem linkados e usados
@@ -97,6 +98,7 @@ private:
     unsigned int _textureRoughness;
 
     int _isPBR{0};
+    Options _option;
 };
 
 #endif // RENDER_H

@@ -64,7 +64,7 @@ void RenderOpengl::organizingData()
     std::vector<QVector2D> texCoords; //Vetor de coordenadas de textura
     std::vector<int> indexes; //Vetor de cada ponto do meu objeto que será renderizado
 
-    for(int i = 0; i<_indexPoints.size(); i++)
+    for(unsigned int i = 0; i<_indexPoints.size(); i++)
     {
         int idP = _indexPoints[i];
         int idN = _indexNormals[i];
@@ -142,7 +142,7 @@ void RenderOpengl::quadToTriangleMesh(std::vector<int>& indexPointsQuad, std::ve
 
     }
 
-    for(int i = 0; i<indexPointsTriangle.size(); i++)
+    for(unsigned int i = 0; i<indexPointsTriangle.size(); i++)
     {
         _indexPoints.push_back(indexPointsTriangle[i]);
         _indexNormals.push_back(indexNormalsTriangle[i]);
@@ -168,7 +168,6 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
 
         for(unsigned int i = 0; i < fileNames.size(); i++)
         {
-            std::cout << fileNames[i] << std::endl;
             readFile2(fileNames[i],_points,_normals,_texCoords,indexPointsTriangle,indexPointsQuad,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
         }
         quadToTriangleMesh(indexPointsQuad, indexPointsTriangle,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
@@ -185,7 +184,7 @@ void RenderOpengl::getMinMaxMesh()
     float minX,minY,minZ;
     maxX = maxY = maxZ = -2000000;
     minX = minY = minZ = 2000000;
-    for(int i = 0; i < _points.size(); i++)
+    for(unsigned int i = 0; i < _points.size(); i++)
     {
         if(_points[i].x() > maxX)
         {
@@ -222,17 +221,17 @@ void RenderOpengl::getMinMaxMesh()
         }
     }
 
-    printf("MIN X = %f\n",minX);
-    printf("MIN Y = %f\n ",minY);
-    printf("MIN Z = %f\n\n ",minZ);
+//    printf("MIN X = %f\n",minX);
+//    printf("MIN Y = %f\n ",minY);
+//    printf("MIN Z = %f\n\n ",minZ);
 
-    printf("MAX X = %f\n",maxX);
-    printf("MAX Y = %f\n ",maxY);
-    printf("MAX Z = %f\n\n ",maxZ);
+//    printf("MAX X = %f\n",maxX);
+//    printf("MAX Y = %f\n ",maxY);
+//    printf("MAX Z = %f\n\n ",maxZ);
 
-    printf("Medium X: %f\n", (minX + maxX)/2);
-    printf("Medium Y: %f\n", (minY + maxY)/2);
-    printf("Medium Z: %f\n", (minZ + maxZ)/2);
+//    printf("Medium X: %f\n", (minX + maxX)/2);
+//    printf("Medium Y: %f\n", (minY + maxY)/2);
+//    printf("Medium Z: %f\n", (minZ + maxZ)/2);
     _minMeshPoint.setX(minX);
     _minMeshPoint.setY(minY);
     _minMeshPoint.setZ(minZ);
@@ -246,7 +245,7 @@ void RenderOpengl::getMinMaxMesh()
 
     cam.eye =  QVector3D(0.f,0.f,4*_maxMeshPoint.z());
 
-    for(int i = 0; i < _points.size(); i++)
+    for(unsigned int i = 0; i < _points.size(); i++)
     {
         _points[i] = _points[i] - medium;
     }
@@ -407,7 +406,7 @@ void RenderOpengl::setMode(MeshTypes type)
     }
     else if (type == MeshTypes::ROBO)
     {
-        setFile({{"../../MalhasTeste/MalhasComTextura/robot.obj"}});
+        setFile({{"../../MalhasTeste/robot.obj"}});
     }
 
     createVAO();
@@ -422,6 +421,11 @@ void RenderOpengl::setMaterial(MaterialTypes type)
 void RenderOpengl::setPBR(int isPBR)
 {
     _isPBR = isPBR;
+}
+
+void RenderOpengl::setOption(Options option)
+{
+    _option = option;
 }
 
 
@@ -522,7 +526,6 @@ void RenderOpengl::createPBRTextures(const std::vector<std::string> imagePath)
     //Linkar (bind) a textura criada
     glBindTexture(GL_TEXTURE_2D, _textureMetallic);
 
-    std::cout<< imagePath[1]<<std::endl;
     //Abrir arquivo de imagem com o Qt
     texImage = QGLWidget::convertToGLFormat(QImage(imagePath[1].c_str()));
     //QImage texImage(imagePath.c_str());
@@ -655,7 +658,7 @@ void RenderOpengl::setMaterialProperties()
 
 }
 
-void RenderOpengl::keyPressEvent(QKeyEvent* event)
+void RenderOpengl::keyPressEvent(QKeyEvent*)
 {
 
 }
@@ -688,7 +691,7 @@ void RenderOpengl::mousePressEvent(QMouseEvent *event)
 }
 
 
-void RenderOpengl::mouseReleaseEvent(QMouseEvent *event)
+void RenderOpengl::mouseReleaseEvent(QMouseEvent *)
 {
 
     mousepress=false;

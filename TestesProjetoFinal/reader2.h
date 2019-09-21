@@ -7,13 +7,9 @@
 #include <sstream>
 void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector<QVector3D>& normals, std::vector<QVector2D>& texCoords, std::vector<int>& indexPointsTriangles,std::vector<int>& indexPointsQuads, std::vector<int>& indexNormalsTriangles, std::vector<int>& indexTexTriangles, std::vector<int>& indexNormalsQuads,std::vector<int>& indexTexQuads)
 {
-
-    int cont = 0;
     std::string line;
     std::string type = " ";
     std::ifstream myfile (fileName);
-    std::cout<<fileName<<std::endl;
-    std::cout<<texCoords.size()<<std::endl;
     while (1)
     {
       if(myfile.eof())

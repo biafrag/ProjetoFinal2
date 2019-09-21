@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->groupBox_2->hide();
 }
 
 MainWindow::~MainWindow()
@@ -18,29 +19,9 @@ void MainWindow::on_ESFERAbutton_clicked()
     ui->openGLWidget->setMode(MeshTypes::ESFERA);
 }
 
-void MainWindow::on_CUBObutton_clicked()
-{
-    ui->openGLWidget->setMode(MeshTypes::CUBO);
-}
-
-void MainWindow::on_DODECAEDRObutton_clicked()
-{
-    ui->openGLWidget->setMode(MeshTypes::DODECAEDRO);
-}
-
 void MainWindow::on_BRINCOSbutton_clicked()
 {
     ui->openGLWidget->setMode(MeshTypes::BRINCOS);
-}
-
-void MainWindow::on_VENTILADORbutton_clicked()
-{
-    ui->openGLWidget->setMode(MeshTypes::VENTILADOR);
-}
-
-void MainWindow::on_LATAButton_clicked()
-{
-    ui->openGLWidget->setMode(MeshTypes::LATA);
 }
 
 void MainWindow::on_ROBObutton_clicked()
@@ -93,9 +74,28 @@ void MainWindow::on_checkBox_clicked(bool checked)
     if(checked)
     {
         ui->openGLWidget->setPBR(1);
+        ui->verticalSlider->hide();
+        ui->COPPERLabel->hide();
+        ui->GOLDLabel->hide();
+        ui->POLSILVERLabel->hide();
+        ui->SILVERLabel->hide();
+
+        ui->groupBox_2->show();
     }
     else
     {
         ui->openGLWidget->setPBR(0);
+        ui->verticalSlider->show();
+        ui->COPPERLabel->show();
+        ui->GOLDLabel->show();
+        ui->POLSILVERLabel->show();
+        ui->SILVERLabel->show();
+
+        ui->groupBox_2->hide();
     }
+}
+
+void MainWindow::on_GoldRadioButton_clicked()
+{
+    ui->openGLWidget->setOption(Options::GOLD);
 }

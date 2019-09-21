@@ -26,12 +26,39 @@ uniform int isPBR; //Posição da luz no espaço tangente
 in vec3 fragNormal;
 in vec3 fragPos;
 in vec2 UV;
+in vec3 worldPos;
 out vec4 finalColor; // Cor final do objeto
 
 uniform sampler2D Albedo; //Textura difusa
 uniform sampler2D Metallic; //Textura difusa
 uniform sampler2D Ao; //Textura difusa
 uniform sampler2D Roughness; //Textura difusa
+
+float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+float noise(vec3 p){
+    vec3 a = floor(p);
+    vec3 d = p - a;
+    d = d * d * (3.0 - 2.0 * d);
+
+    vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 k1 = perm(b.xyxy);
+    vec4 k2 = perm(k1.xyxy + b.zzww);
+
+    vec4 c = k2 + a.zzzz;
+    vec4 k3 = perm(c);
+    vec4 k4 = perm(c + 1.0);
+
+    vec4 o1 = fract(k3 * (1.0 / 41.0));
+    vec4 o2 = fract(k4 * (1.0 / 41.0));
+
+    vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
+    vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
+
+    return o4.y * d.y + o4.x * (1.0 - d.y);
+}
+
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -72,10 +99,11 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 }
 void main()
 {
-//    float metallic = 0.5f;
-//    float roughness = 0.5f;
-//    float ao = 1.0;
-//    vec3  albedo = vec3 (0.5f,0.0f,0.0f);
+    //Noise com 6 oitavas
+    float f = (noise(4*worldPos)*0.5 + noise(8*worldPos)*0.25 + noise(16*worldPos)*0.125 + noise(32*worldPos)*0.0625 + noise(64*worldPos)*0.03125 + noise(128*worldPos)*0.015625);
+    vec3 skyColor = vec3(0.7038, 0.27048, 0.0828);
+    vec3 cloudColor = vec3(0.19125, 0.0735, 0.0225);
+    vec3 colorNoise = mix(skyColor,cloudColor,f);
 
     if(isPBR == 1)
     {
@@ -116,11 +144,11 @@ void main()
 
               // add to outgoing radiance Lo
               float NdotL = max(dot(N, L), 0.0);
-              Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+              Lo += (kD * albedo / PI + specular) * radiance * NdotL * colorNoise;
 
 
           }
-          vec3 ambient = vec3(0.05) * albedo * ao;
+          vec3 ambient = vec3(0.05) * albedo * ao * colorNoise;
           vec3 color = ambient + Lo;
           color = color / (color + vec3(1.0));
           color = pow(color, vec3(1.0/2.2));;
@@ -147,5 +175,7 @@ void main()
         specular = iSpec * material.specular;
 
         finalColor = diffuse + ambient + specular;
+
+        finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
     }
 }

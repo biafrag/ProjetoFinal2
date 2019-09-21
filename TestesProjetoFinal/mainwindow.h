@@ -19,15 +19,7 @@ private slots:
 
     void on_ESFERAbutton_clicked();
 
-    void on_CUBObutton_clicked();
-
-    void on_DODECAEDRObutton_clicked();
-
     void on_BRINCOSbutton_clicked();
-
-    void on_VENTILADORbutton_clicked();
-
-    void on_LATAButton_clicked();
 
     void on_ROBObutton_clicked();
 
@@ -36,6 +28,8 @@ private slots:
     void on_verticalSlider_valueChanged(int value);
 
     void on_checkBox_clicked(bool checked);
+
+    void on_GoldRadioButton_clicked();
 
 private:
     Ui::MainWindow *ui;
