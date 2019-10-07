@@ -12,6 +12,7 @@ out vec3 fragNormal; //Normal no espaço do olho
 out vec3 fragPos; //Posição no espaço do olho
 out vec2 UV;
 out vec3 worldPos;
+out vec3 worldNorm;
 void main()
 {
     //Posição do vértice no espaço de projeção
@@ -24,4 +25,5 @@ void main()
     fragNormal = normalize(( normalMatrix * vec4( vertexNormal, 0 ) ).xyz);
     UV = vertexTexCoord;
     worldPos = vertexPos;
+    worldNorm = vertexNormal;
 }

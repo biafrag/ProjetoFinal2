@@ -1,8 +1,8 @@
 enum class MeshTypes : unsigned int
 {
     ESFERA            = 0x00000000,
-    CUBO              = 0x00000001,
-    DODECAEDRO        = 0x00000002,
+    BULE              = 0x00000001,
+    TROFEU            = 0x00000002,
     VENTILADOR        = 0x00000004,
     BRINCOS           = 0x00000008,
     LATA              = 0x00000040,
@@ -12,7 +12,11 @@ enum class MeshTypes : unsigned int
 
 enum class Options : int
 {
-    GOLD = 0
+    NONOISE = 0,
+    GOLD = 1,
+    CLOUDSROUGH = 2,
+    NORMAL = 3,
+    CLOUDSALB = 4
 
 };
 

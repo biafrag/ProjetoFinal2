@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->groupBox_2->hide();
+    ui->verticalSlider->setValue(3);
 }
 
 MainWindow::~MainWindow()
@@ -98,4 +99,34 @@ void MainWindow::on_checkBox_clicked(bool checked)
 void MainWindow::on_GoldRadioButton_clicked()
 {
     ui->openGLWidget->setOption(Options::GOLD);
+}
+
+void MainWindow::on_radioButton_clicked()
+{
+        ui->openGLWidget->setMode(MeshTypes::TROFEU);
+}
+
+void MainWindow::on_NoNoiseRadioButton_clicked()
+{
+        ui->openGLWidget->setOption(Options::NONOISE);
+}
+
+void MainWindow::on_radioButton_2_clicked()
+{
+    ui->openGLWidget->setOption(Options::CLOUDSROUGH);
+}
+
+void MainWindow::on_radioButton_3_clicked()
+{
+     ui->openGLWidget->setMode(MeshTypes::BULE);
+}
+
+void MainWindow::on_radioButton_4_clicked()
+{
+    ui->openGLWidget->setOption(Options::NORMAL);
+}
+
+void MainWindow::on_radioButton_5_clicked()
+{
+    ui->openGLWidget->setOption(Options::CLOUDSALB);
 }

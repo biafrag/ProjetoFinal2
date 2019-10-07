@@ -56,6 +56,7 @@ private:
     void createVAO(); //Cria VAO
     std::vector<QVector3D> _points; //Vetor de cada ponto do meu objeto que será renderizado
     std::vector<QVector3D> _normals; //Vetor de normal pra cada vértice do meu cubo
+    std::vector<QVector3D> _tangents; //Vetor de normal pra cada vértice do meu cubo
     std::vector<QVector2D> _texCoords; //Vetor de coordenadas de textura
     std::vector<int> _indexPoints; //vetor com os indices que formam os triângulos que serão renderizados
     std::vector<int> _indexNormals; //vetor com os indices que formam os triângulos que serão renderizados
@@ -85,17 +86,27 @@ private:
     void printThings();
     void createPBRTextures(const std::vector<std::string> imagePath);
     void setFile(std::vector<std::string> fileNames);
+    void computeTangents();
+
+    //Teste Normal Map
+    void createNormalTexture(const std::string &imagePath); //Seta textura difusa
+
+
     //Buffers
     unsigned int _pointsBuffer = static_cast<unsigned int>(-1);
     unsigned int _normalsBuffer = static_cast<unsigned int>(-1);
     unsigned int _meshBuffer = static_cast<unsigned int>(-1);
     unsigned int _texCoordsBuffer = static_cast<unsigned int>(-1);
+    unsigned int _tangentsBuffer = static_cast<unsigned int>(-1);
     unsigned int _textureID;
 
     unsigned int _textureAlbedo;
     unsigned int _textureMetallic;
     unsigned int _textureAo;
     unsigned int _textureRoughness;
+
+    //Teste normal map
+    unsigned int _normalMap;
 
     int _isPBR{0};
     Options _option;

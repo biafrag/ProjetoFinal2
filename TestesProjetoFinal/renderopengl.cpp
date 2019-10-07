@@ -173,6 +173,8 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
         quadToTriangleMesh(indexPointsQuad, indexPointsTriangle,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
         organizingData();
         getMinMaxMesh();
+        computeTangents();
+        printThings();
         _model = glm::mat4x4(1.0);
         //paintGL();
 
@@ -264,8 +266,8 @@ void RenderOpengl::initializeGL()
     _program = new QOpenGLShaderProgram();
     //Adicionando shaders ao programa
 
-    _program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexshader.glsl");
-    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshaderpbr.glsl");
+    _program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexshadernormalmaptest.glsl");
+    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshadernormalmaptest.glsl");
 
     //Linka shaders que foram adicionados ao programa
     _program->link();
@@ -279,7 +281,8 @@ void RenderOpengl::initializeGL()
 
     setMode(MeshTypes::ESFERA);
     _program->bind();
-    createTexture("../../MalhasTeste/Texturas/golfball.png");
+    //createTexture("../../MalhasTeste/Texturas/golfball.png");
+    createNormalTexture("../../MalhasTeste/Texturas/golfball.png");
     createPBRTextures({"../../MalhasTeste/Texturas/albedo.png","../../MalhasTeste/Texturas/metalness.png","../../MalhasTeste/Texturas/roughness.png","../../MalhasTeste/Texturas/ao.png"});
     //createVAO();
     //printThings();
@@ -325,7 +328,9 @@ void RenderOpengl::paintGL()
     //inversa transposta da model-view
     _program->setUniformValue("normalMatrix", mv.inverted().transposed());
     //Variáveis de material e luz
-    _program->setUniformValue("light", v * QVector3D(5,5,2));
+    //_program->setUniformValue("light", v * QVector3D(5,5,2));
+
+    _program->setUniformValue("lightPos", v * cam.eye);
 
     _program->setUniformValue("lights[0].Position", v*QVector3D(1,1,2));
     _program->setUniformValue("lights[1].Position",  v*QVector3D(-1,1,2));
@@ -333,33 +338,34 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
 
     _program->setUniformValue("isPBR",  _isPBR);
+    _program->setUniformValue("option", (int)_option);
+
     //Ativar e linkar a textura
 //    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, _textureID);
-//    _program->setUniformValue("sampler", 0);
-//    GLint textureLocation = glGetUniformLocation(_program->programId(), "sampler");
-//    glUniform1i(textureLocation, 0);
+//    glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
+//    unsigned int albedoLocation = glGetUniformLocation(_program->programId(), "Albedo");
+//    glUniform1i(albedoLocation, 0);
 
+//    glActiveTexture(GL_TEXTURE1);
+//    glBindTexture(GL_TEXTURE_2D, _textureMetallic);
+//    unsigned int metallicLocation = glGetUniformLocation(_program->programId(), "Metallic");
+//    glUniform1i(metallicLocation, 1);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
-    unsigned int albedoLocation = glGetUniformLocation(_program->programId(), "Albedo");
-    glUniform1i(albedoLocation, 0);
+//    glActiveTexture(GL_TEXTURE2);
+//    glBindTexture(GL_TEXTURE_2D, _textureRoughness);
+//    unsigned int roughnessLocation = glGetUniformLocation(_program->programId(), "Roughness");
+//    glUniform1i(roughnessLocation, 2);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, _textureMetallic);
-    unsigned int metallicLocation = glGetUniformLocation(_program->programId(), "Metallic");
-    glUniform1i(metallicLocation, 1);
+//    glActiveTexture(GL_TEXTURE3);
+//    glBindTexture(GL_TEXTURE_2D, _textureAo);
+//    unsigned int aoLocation = glGetUniformLocation(_program->programId(), "Ao");
+//    glUniform1i(aoLocation, 3);
 
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, _textureRoughness);
-    unsigned int roughnessLocation = glGetUniformLocation(_program->programId(), "Roughness");
-    glUniform1i(roughnessLocation, 2);
-
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, _textureAo);
-    unsigned int aoLocation = glGetUniformLocation(_program->programId(), "Ao");
-    glUniform1i(aoLocation, 3);
+    //Teste normal map
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, _normalMap);
+    unsigned int normaLocation = glGetUniformLocation(_program->programId(), "normalsampler");
+    glUniform1i(normaLocation, 4);
 
     setMaterialProperties();
 
@@ -384,13 +390,13 @@ void RenderOpengl::setMode(MeshTypes type)
     {
         setFile({"../../MalhasTeste/MalhasComTextura/golfball.obj"});
     }
-    else if (type == MeshTypes::CUBO)
+    else if (type == MeshTypes::BULE)
     {
-        setFile({"../../MalhasTeste/cube.obj"});
+        setFile({"../../MalhasTeste/MalhasComTextura/teapot.obj"});
     }
-    else if (type == MeshTypes::DODECAEDRO)
+    else if (type == MeshTypes::TROFEU)
     {
-        setFile({"../../MalhasTeste/dodecaedro.obj"});
+        setFile({"../../MalhasTeste/MalhasComTextura/trofeu.obj"});
     }
     else if (type == MeshTypes::VENTILADOR)
     {
@@ -463,6 +469,13 @@ void RenderOpengl::createVAO()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(2);
 
+    //Criando buffer de tangentes
+    glGenBuffers(1, &_tangentsBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _tangentsBuffer);
+    glBufferData(GL_ARRAY_BUFFER, _tangents.size()*sizeof(QVector3D), &_tangents[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(3);
+
     //Criando buffers de indexPoints
     glGenBuffers(1, &_meshBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _meshBuffer);
@@ -485,6 +498,12 @@ void RenderOpengl::printThings()
 //    {
 //        printf( "%f %f %f\n",_normals[i].x(),_normals[i].y(),_normals[i].z());
 //    }
+
+    printf("Tangentes: \n");
+    for(unsigned int i = 0; i< _tangents.size(); i ++)
+    {
+        printf( "%f %f %f\n",_tangents[i].x(),_tangents[i].y(),_tangents[i].z());
+    }
 
 
 //    printf("Indices: \n");
@@ -735,5 +754,101 @@ void RenderOpengl::wheelEvent(QWheelEvent *event)
            cam.eye=cam.eye/0.9;
       }
       update();
+}
+
+void RenderOpengl::computeTangents()
+{
+    //Abordagem em funcionamento
+    std::vector<QVector3D> tanA;
+    std::vector<QVector3D> tanB;
+    tanA.resize(_points.size());
+    tanB.resize(_points.size());
+    for(int i = 0; i< tanA.size();i++)
+    {
+        tanA[i] = QVector3D(0,0,0);
+        tanB[i] = QVector3D(0,0,0);
+    }
+
+    _tangents.resize(_points.size());
+    for (size_t i = 0; i < _indexPoints.size()/3; i++)
+    {
+            size_t i0 = _indexPoints[3*i];
+            size_t i1 = _indexPoints[3*i + 1];
+            size_t i2 = _indexPoints[3*i + 2];
+
+            QVector3D pos0 = _points[i0];
+            QVector3D pos1 = _points[i1];
+            QVector3D pos2 = _points[i2];
+
+            QVector2D tex0 = _texCoords[i0];
+            QVector2D tex1 = _texCoords[i1];
+            QVector2D tex2 = _texCoords[i2];
+
+            QVector3D edge1 = pos1 - pos0;
+            QVector3D edge2 = pos2 - pos0;
+
+            QVector2D uv1 = tex1 - tex0;
+            QVector2D uv2 = tex2 - tex0;
+
+            float r = 1.0f / (uv1.x() * uv2.y() - uv1.y() * uv2.x());
+
+            //Calculando dois vetores perpendiculares à normal (tangente e bitangente)
+            QVector3D tangent(
+                ((edge1.x() * uv2.y()) - (edge2.x() * uv1.y())) * r,
+                ((edge1.y() * uv2.y()) - (edge2.y() * uv1.y())) * r,
+                ((edge1.z() * uv2.y()) - (edge2.z() * uv1.y())) * r
+            );
+
+            QVector3D bitangent(
+                ((edge1.x() * uv2.x()) - (edge2.x() * uv1.x())) * r,
+                ((edge1.y() * uv2.x()) - (edge2.y() * uv1.x())) * r,
+                ((edge1.z() * uv2.x()) - (edge2.z() * uv1.x())) * r
+            );
+
+            tanA[i0] += tangent;
+            tanA[i1] += tangent;
+            tanA[i2] += tangent;
+
+            tanB[i0] += bitangent;
+            tanB[i1] += bitangent;
+            tanB[i2] += bitangent;
+        }
+
+        // (2)
+        for (size_t i = 0; i < _points.size(); i++)
+        {
+            QVector3D n = _normals[i];
+            QVector3D t0 = tanA[i];
+            QVector3D t1 = tanB[i];
+
+            QVector3D t = t0 - (n * QVector3D::dotProduct(n, t0));
+            t.normalize();
+            _tangents[i] = QVector3D(t.x(), t.y(), t.z());
+        }
+
+}
+
+void RenderOpengl::createNormalTexture(const std::string &imagePath)
+{
+    //Gerando textura e recebendo ID dessa textura
+    glGenTextures(1, &_normalMap);
+
+    //Linkar (bind) a textura criada
+    glBindTexture(GL_TEXTURE_2D, _normalMap);
+
+    //Abrir arquivo de imagem com o Qt
+    QImage texImage = QGLWidget::convertToGLFormat(QImage(imagePath.c_str()));
+    //QImage texImage(imagePath.c_str());
+
+    //Enviar a imagem para o OpenGL
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
+                 texImage.width(), texImage.height(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, texImage.bits());
+
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 

@@ -3,5 +3,7 @@
         <file>fragmentshader.glsl</file>
         <file>vertexshader.glsl</file>
         <file>fragmentshaderpbr.glsl</file>
+        <file>fragmentshadernormalmaptest.glsl</file>
+        <file>vertexshadernormalmaptest.glsl</file>
     </qresource>
 </RCC>
