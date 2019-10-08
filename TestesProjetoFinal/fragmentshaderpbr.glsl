@@ -31,12 +31,34 @@ in vec3 fragPos;
 in vec2 UV;
 in vec3 worldPos;
 in vec3 worldNorm;
+in vec3 projPos;
+
+in vec3 tangPos;
+
+in vec3 tangente;
+in vec3 bitangente;
 out vec4 finalColor; // Cor final do objeto
 
 uniform sampler2D Albedo; //Textura difusa
 uniform sampler2D Metallic; //Textura difusa
 uniform sampler2D Ao; //Textura difusa
 uniform sampler2D Roughness; //Textura difusa
+
+mat3 inverse(mat3 m) {
+  float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
+  float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
+  float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];
+
+  float b01 = a22 * a11 - a12 * a21;
+  float b11 = -a22 * a10 + a12 * a20;
+  float b21 = a21 * a10 - a11 * a20;
+
+  float det = a00 * b01 + a01 * b11 + a02 * b21;
+
+  return mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),
+              b11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),
+              b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
+}
 
 float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
@@ -63,11 +85,11 @@ float noise(vec3 p){
     return o4.y * d.y + o4.x * (1.0 - d.y);
 }
 
-float calculateNoise(vec3 pos)
+float calculateNoise1(vec3 pos)
 {
     float z = 0;
-    float scale = 1;
-    float persistency = 0.25;
+    float scale = 4;
+    float persistency = 0.5;
     int numOctaves = 4;
     for(int i = 0; i < numOctaves;i++)
     {
@@ -75,6 +97,42 @@ float calculateNoise(vec3 pos)
         scale *= 2;
         persistency /= 2;
     }
+    return z;
+}
+
+float calculateNoise2(vec3 pos)
+{
+    float z = 0;
+//    float scale = 4;
+//    float persistency = 0.5;
+//    int numOctaves = 4;
+//    for(int i = 0; i < numOctaves;i++)
+//    {
+//        z += noise(scale * pos) * persistency;
+//        scale *= 2;
+//        persistency /= 2;
+//    }
+    float oct3 = noise(16*pos)*0.25/2;
+    float oct4 = noise(32*pos)*0.25/4;
+   z =  min(1.0,oct3 + oct4*5.0 );
+    return z;
+}
+
+float calculateNoise3(vec3 pos)
+{
+    float z = 0;
+    float oct1 =  noise(4*pos)*0.5;
+    float oct2 = noise(8*pos)*0.25;
+    z = abs(oct1 - 0.3) * oct2/oct1;
+    return z;
+}
+
+float calculateNoise4(vec3 pos)
+{
+    float z = 0;
+    float oct3 = noise(16*pos)*0.25/2;
+    float oct4 = noise(32*pos)*0.25/4;
+    z = min(0.1,oct3 + oct4*2.4) + oct4/3;
     return z;
 }
 
@@ -282,75 +340,28 @@ void main()
         }
         else if (option == 3)
         {
-            //Calculando pontos usando derivadas
+
+            //Pegando normal usando pontos da vertical e horizontal
             vec3 left = worldPos - dFdx(worldPos);
             vec3 right = worldPos + dFdx(worldPos);
             vec3 up = worldPos + dFdy(worldPos);
             vec3 down = worldPos - dFdy(worldPos);
-            vec3 upRight = worldPos + dFdx(worldPos) + dFdy(worldPos);
-            vec3 upLeft = worldPos - dFdx(worldPos) + dFdy(worldPos);
-            vec3 downRight = worldPos + dFdx(worldPos) - dFdy(worldPos);
-            vec3 downLeft = worldPos - dFdx(worldPos) - dFdy(worldPos);
 
-            //Pegando vetores da borda
-            vec3 normal1 = cross(downRight - downLeft, upLeft - downLeft);
-            vec3 normal2 = cross(upLeft - upRight, downRight - upRight);
-            vec3 normal = normalize((normal1 + normal2)/2.0);
+            left = vec3(left.x,0,calculateNoise3(left));
+            right = vec3(right.x,0,calculateNoise3(right));
+            up = vec3(0,up.y,calculateNoise3(up));
+            down = vec3(0,down.y,calculateNoise3(down));
 
-            //Pegando normal usando pontos da vertical e horizontal
-//            vec3 left = worldPos - dFdx(worldPos);
-//            vec3 right = worldPos + dFdx(worldPos);
-//            vec3 up = worldPos + dFdy(worldPos);
-//            vec3 down = worldPos - dFdy(worldPos);
-//            vec3 upRight = worldPos + dFdx(worldPos) + dFdy(worldPos);
-//            vec3 upLeft = worldPos - dFdx(worldPos) + dFdy(worldPos);
-//            vec3 downRight = worldPos + dFdx(worldPos) - dFdy(worldPos);
-//            vec3 downLeft = worldPos - dFdx(worldPos) - dFdy(worldPos);
-
-//            vec3 normal = cross(upLeft - upRight, downRight - upRight);
-
-            //Agora tentando com Sobel
-//            mat3 mx = mat3(vec3(-1,-2,-1),vec3(0,0,0),vec3(1,2,1));
-//            mat3 my = mat3(vec3(1,0,-1),vec3(2,0,-2),vec3(1,0,-1));
-//            vec3 dx = mx * worldPos;
-//            vec3 dy = my * worldPos;
-
-//            vec3 left = worldPos - dx;
-//            vec3 right = worldPos + dx;
-//            vec3 up = worldPos + dy;
-//            vec3 down = worldPos - dy;
-//            vec3 upRight = worldPos + dx + dy;
-//            vec3 upLeft = worldPos - dx + dy;
-//            vec3 downRight = worldPos + dx - dy;
-//            vec3 downLeft = worldPos - dx - dy;
-
-//            vec3  normal1 = cross(downRight - downLeft, upLeft - downLeft);
-//            vec3  normal2 = cross(upLeft - upRight, downRight - upRight);
-//            vec3  normal = cross(upLeft - upRight, downRight - upRight);
-
-//            left = vec3(left.x,left.y,calculateNoise(left));
-//            right = vec3(right.x,right.y,calculateNoise(right));
-//            up = vec3(up.x,up.y,calculateNoise(up));
-//            down = vec3(down.x,down.y,calculateNoise(down));
-//            upRight = vec3(upRight.x,upRight.y,calculateNoise(upRight));
-//            upLeft = vec3(upLeft.x,upLeft.y,calculateNoise(upLeft));
-//            downRight = vec3(downRight.x,downRight.y,calculateNoise(downRight));
-//            downLeft = vec3(downLeft.x,downLeft.y,calculateNoise(downLeft));
+            vec3 v1 = normalize(right - left);
+            vec3 v2 = normalize(up - down);
+            vec3 normal = cross(v1, v2);
 
 
-//            vec3 normal1 = normalize(cross(downRight - downLeft, upLeft - downLeft));
-//            vec3 normal2 = normalize(cross(upLeft - upRight, downRight - upRight));
-//            vec3 normal = normalize((normal1 + normal2)/2.0);
-
-            //Ideia 2 => Pegar normal já existente e já somar com outras com um peso mais alto
-//            vec3 normal1 = normalize(cross(downRight - downLeft, upLeft - downLeft));
-//            vec3 normal2 = normalize(cross(upLeft - upRight, downRight - upRight));
-//            vec3 normal = normalize((abs(normal1) + abs(normal2) + 6*normalize(worldNorm))/8.0);
-
-
+            mat3 inverseTBN = transpose(mat3(tangente,bitangente,worldNorm));
+            inverseTBN = inverse(inverseTBN);
 
             vec4 ambient = material.ambient;
-            vec3 N = normalize(( normalMatrix * vec4( normal, 0 ) ).xyz);
+            vec3 N =  normalize(( normalMatrix * vec4( inverseTBN * normalize(normal), 0 ) ).xyz);
             vec3 V = normalize(-fragPos);
             vec3 L = normalize(light - fragPos);
 
@@ -366,7 +377,7 @@ void main()
 
             finalColor = diffuse + ambient + specular;
 
-            finalColor = vec4(vec3(ambient) + vec3(diffuse) + vec3(specular),1);
+            finalColor = vec4((vec3(ambient) + vec3(diffuse)) + vec3(specular),1);
         }
         else if (option == 4)
         {

@@ -14,7 +14,8 @@ uniform vec3 lightPos; //Inversa transposta da MV
 out vec2 fragUV; // Coordenada de textura passada pro fragment
 out vec3 light; // Posição da luz passada pro fragment no espaco tangente
 out vec3 tanViewer; //Viewer no espaço tangente
-out vec3 tang;
+out vec3 tangente;
+out vec3 bitangente;
 out vec3 fragNormal;
 out vec3 fragPos;
 
@@ -43,11 +44,12 @@ void main()
     fragUV = vertexTexCoord ;
 
     //Colocando luz no espaco tangente
-    light = rotation*normalize(lightPos - fragPos);
+    light = /*rotation**/normalize(lightPos - fragPos);
 
     //Viewer no espaco tangente
-    tanViewer = rotation*normalize(-fragPos);
+    tanViewer = /*rotation**/normalize(-fragPos);
 
-    tang = normalize(tangent);
+    tangente  = tangentVertexEye;
+    bitangente = bitangentVertexEye;
 
 }

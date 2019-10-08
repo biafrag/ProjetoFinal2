@@ -25,6 +25,11 @@ RenderOpengl::RenderOpengl(QWidget* parent)
 
 RenderOpengl::~RenderOpengl()
 {
+    QVector3D v1(0.4,0,0.3);
+    QVector3D v2(0,0.1,0.7);
+
+    QVector3D normal = QVector3D::crossProduct(v1,v2);
+    printf("Normal: %f %f %f\n",normal.x(),normal.y(),normal.z());
     delete _program;
     glDeleteBuffers(1, &_meshBuffer);
     glDeleteBuffers(1, &_normalsBuffer);
@@ -266,8 +271,8 @@ void RenderOpengl::initializeGL()
     _program = new QOpenGLShaderProgram();
     //Adicionando shaders ao programa
 
-    _program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexshadernormalmaptest.glsl");
-    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshadernormalmaptest.glsl");
+    _program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexshader.glsl");
+    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshaderpbr.glsl");
 
     //Linka shaders que foram adicionados ao programa
     _program->link();
@@ -328,7 +333,7 @@ void RenderOpengl::paintGL()
     //inversa transposta da model-view
     _program->setUniformValue("normalMatrix", mv.inverted().transposed());
     //Variáveis de material e luz
-    //_program->setUniformValue("light", v * QVector3D(5,5,2));
+    _program->setUniformValue("light", v * QVector3D(5,5,2));
 
     _program->setUniformValue("lightPos", v * cam.eye);
 
@@ -341,25 +346,25 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("option", (int)_option);
 
     //Ativar e linkar a textura
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
-//    unsigned int albedoLocation = glGetUniformLocation(_program->programId(), "Albedo");
-//    glUniform1i(albedoLocation, 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
+    unsigned int albedoLocation = glGetUniformLocation(_program->programId(), "Albedo");
+    glUniform1i(albedoLocation, 0);
 
-//    glActiveTexture(GL_TEXTURE1);
-//    glBindTexture(GL_TEXTURE_2D, _textureMetallic);
-//    unsigned int metallicLocation = glGetUniformLocation(_program->programId(), "Metallic");
-//    glUniform1i(metallicLocation, 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, _textureMetallic);
+    unsigned int metallicLocation = glGetUniformLocation(_program->programId(), "Metallic");
+    glUniform1i(metallicLocation, 1);
 
-//    glActiveTexture(GL_TEXTURE2);
-//    glBindTexture(GL_TEXTURE_2D, _textureRoughness);
-//    unsigned int roughnessLocation = glGetUniformLocation(_program->programId(), "Roughness");
-//    glUniform1i(roughnessLocation, 2);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, _textureRoughness);
+    unsigned int roughnessLocation = glGetUniformLocation(_program->programId(), "Roughness");
+    glUniform1i(roughnessLocation, 2);
 
-//    glActiveTexture(GL_TEXTURE3);
-//    glBindTexture(GL_TEXTURE_2D, _textureAo);
-//    unsigned int aoLocation = glGetUniformLocation(_program->programId(), "Ao");
-//    glUniform1i(aoLocation, 3);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, _textureAo);
+    unsigned int aoLocation = glGetUniformLocation(_program->programId(), "Ao");
+    glUniform1i(aoLocation, 3);
 
     //Teste normal map
     glActiveTexture(GL_TEXTURE4);
