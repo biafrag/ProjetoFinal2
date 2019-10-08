@@ -22,8 +22,9 @@ uniform Material material;
 
 //Variaveis de entrada
 uniform vec3 light; //Posição da luz no espaço tangente
-uniform int isPBR; //Posição da luz no espaço tangente
-uniform int option; //Posição da luz no espaço tangente
+uniform int isPBR; //Variavel indicando se estamos usando PBR
+uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com noise
+uniform int option; //Variável indicando qual o tipo de PBR, (sem noise, com noise no albedo etc)
 uniform mat4 normalMatrix; //Inversa transposta da MV
 
 in vec3 fragNormal;
@@ -39,10 +40,10 @@ in vec3 tangente;
 in vec3 bitangente;
 out vec4 finalColor; // Cor final do objeto
 
-uniform sampler2D Albedo; //Textura difusa
-uniform sampler2D Metallic; //Textura difusa
-uniform sampler2D Ao; //Textura difusa
-uniform sampler2D Roughness; //Textura difusa
+uniform sampler2D Albedo;
+uniform sampler2D Metallic;
+uniform sampler2D Ao;
+uniform sampler2D Roughness;
 
 mat3 inverse(mat3 m) {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
@@ -347,10 +348,10 @@ void main()
             vec3 up = worldPos + dFdy(worldPos);
             vec3 down = worldPos - dFdy(worldPos);
 
-            left = vec3(left.x,0,calculateNoise3(left));
-            right = vec3(right.x,0,calculateNoise3(right));
-            up = vec3(0,up.y,calculateNoise3(up));
-            down = vec3(0,down.y,calculateNoise3(down));
+            left = vec3(left.x,left.y,calculateNoise3(left));
+            right = vec3(right.x,right.y,calculateNoise3(right));
+            up = vec3(up.x,up.y,calculateNoise3(up));
+            down = vec3(down.x,down.y,calculateNoise3(down));
 
             vec3 v1 = normalize(right - left);
             vec3 v2 = normalize(up - down);
@@ -361,7 +362,8 @@ void main()
             inverseTBN = inverse(inverseTBN);
 
             vec4 ambient = material.ambient;
-            vec3 N =  normalize(( normalMatrix * vec4( inverseTBN * normalize(normal), 0 ) ).xyz);
+            vec3 G =  normalize(( normalMatrix * vec4( normal, 0 ) ).xyz);
+            vec3 N = fragNormal;
             vec3 V = normalize(-fragPos);
             vec3 L = normalize(light - fragPos);
 
@@ -377,7 +379,7 @@ void main()
 
             finalColor = diffuse + ambient + specular;
 
-            finalColor = vec4((vec3(ambient) + vec3(diffuse)) + vec3(specular),1);
+            finalColor = vec4((vec3(ambient) + vec3(diffuse))*normal+ vec3(specular),1);
         }
         else if (option == 4)
         {
@@ -448,8 +450,11 @@ void main()
         float iSpec = pow(max(dot(V,r),0.0), material.shininess);
         specular = iSpec * material.specular;
 
-        finalColor = diffuse + ambient + specular;
+        finalColor = vec4(vec3(ambient)/**vec3(0.6,0.8,1)*/ + vec3(diffuse)/**vec3(0.9,0.9,1)*/ + vec3(specular),1);
 
-        finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+        if(isDirty == 1)
+        {
+            finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+        }
     }
 }

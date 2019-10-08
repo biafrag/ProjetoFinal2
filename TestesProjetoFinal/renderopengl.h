@@ -28,6 +28,7 @@ public:
     void setMode(MeshTypes type);
     void setMaterial(MaterialTypes type);
     void setPBR(int isPBR);
+    void setDirty(int isDirty);
     void setOption(Options option);
 
 private:
@@ -109,6 +110,7 @@ private:
     unsigned int _normalMap;
 
     int _isPBR{0};
+    int _isDirty{1};
     Options _option;
 };
 

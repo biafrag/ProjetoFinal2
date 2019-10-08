@@ -43,6 +43,10 @@ private slots:
 
     void on_radioButton_5_clicked();
 
+
+
+    void on_DirtyCheckBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 };

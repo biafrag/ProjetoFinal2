@@ -25,11 +25,6 @@ RenderOpengl::RenderOpengl(QWidget* parent)
 
 RenderOpengl::~RenderOpengl()
 {
-    QVector3D v1(0.4,0,0.3);
-    QVector3D v2(0,0.1,0.7);
-
-    QVector3D normal = QVector3D::crossProduct(v1,v2);
-    printf("Normal: %f %f %f\n",normal.x(),normal.y(),normal.z());
     delete _program;
     glDeleteBuffers(1, &_meshBuffer);
     glDeleteBuffers(1, &_normalsBuffer);
@@ -181,8 +176,6 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
         computeTangents();
         printThings();
         _model = glm::mat4x4(1.0);
-        //paintGL();
-
 }
 
 void RenderOpengl::getMinMaxMesh()
@@ -282,16 +275,11 @@ void RenderOpengl::initializeGL()
         std::cout<<"Problemas ao linkar shaders"<<std::endl;
     }
 
-    //setFile({"../../ModeloObj/modelosObj/U-2300-EQU.obj","../ModeloObj/modelosObj/U-2300-EST.obj"});
-
     setMode(MeshTypes::ESFERA);
+    setMaterial(MaterialTypes::SILVER);
     _program->bind();
-    //createTexture("../../MalhasTeste/Texturas/golfball.png");
     createNormalTexture("../../MalhasTeste/Texturas/golfball.png");
     createPBRTextures({"../../MalhasTeste/Texturas/albedo.png","../../MalhasTeste/Texturas/metalness.png","../../MalhasTeste/Texturas/roughness.png","../../MalhasTeste/Texturas/ao.png"});
-    //createVAO();
-    //printThings();
-
 
 }
 
@@ -303,14 +291,14 @@ void RenderOpengl::paintGL()
     //Dando bind no programa e no vao
     _program->bind();
     _vao.bind();
-   // createVAO();
+
     glViewport(0, 0, cam.width, cam.height);
     //Definindo matriz view e projection
      _view.setToIdentity();
      _view.lookAt(cam.eye, cam.at, cam.up);
      _proj.setToIdentity();
      _proj.perspective(cam.fovy, (float)cam.width/cam.height, cam.zNear, cam.zFar);
-     //_model.setToIdentity();
+
 
     //Definindo matrizes para passar para os shaders
 
@@ -318,7 +306,7 @@ void RenderOpengl::paintGL()
             _model[1][0],_model[1][1],_model[1][2],_model[1][3],
             _model[2][0],_model[2][1],_model[2][2],_model[2][3],
             _model[3][0],_model[3][1],_model[3][2],_model[3][3]);
-    //QMatrix4x4 m = _model;
+
     QMatrix4x4 v = _view;
     QMatrix4x4 p = _proj;
 
@@ -343,6 +331,7 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
 
     _program->setUniformValue("isPBR",  _isPBR);
+     _program->setUniformValue("isDirty",  _isDirty);
     _program->setUniformValue("option", (int)_option);
 
     //Ativar e linkar a textura
@@ -417,7 +406,7 @@ void RenderOpengl::setMode(MeshTypes type)
     }
     else if (type == MeshTypes::ROBO)
     {
-        setFile({{"../../MalhasTeste/robot.obj"}});
+        setFile({{"../../MalhasTeste/MalhasComTextura/robot.obj"}});
     }
 
     createVAO();
@@ -432,6 +421,11 @@ void RenderOpengl::setMaterial(MaterialTypes type)
 void RenderOpengl::setPBR(int isPBR)
 {
     _isPBR = isPBR;
+}
+
+void RenderOpengl::setDirty(int isDirty)
+{
+    _isDirty = isDirty;
 }
 
 void RenderOpengl::setOption(Options option)

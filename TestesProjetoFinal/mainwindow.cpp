@@ -80,7 +80,7 @@ void MainWindow::on_checkBox_clicked(bool checked)
         ui->GOLDLabel->hide();
         ui->POLSILVERLabel->hide();
         ui->SILVERLabel->hide();
-
+        ui->DirtyCheckBox->hide();
         ui->groupBox_2->show();
     }
     else
@@ -91,7 +91,7 @@ void MainWindow::on_checkBox_clicked(bool checked)
         ui->GOLDLabel->show();
         ui->POLSILVERLabel->show();
         ui->SILVERLabel->show();
-
+        ui->DirtyCheckBox->show();
         ui->groupBox_2->hide();
     }
 }
@@ -129,4 +129,17 @@ void MainWindow::on_radioButton_4_clicked()
 void MainWindow::on_radioButton_5_clicked()
 {
     ui->openGLWidget->setOption(Options::CLOUDSALB);
+}
+
+
+void MainWindow::on_DirtyCheckBox_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->openGLWidget->setDirty(1);
+    }
+    else
+    {
+        ui->openGLWidget->setDirty(0);
+    }
 }
