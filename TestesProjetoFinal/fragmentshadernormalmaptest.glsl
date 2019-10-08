@@ -56,7 +56,8 @@ void main()
     //Matriz de rotação tbn para transformar luz para o eapaço tangente
     mat3 rotation = inverse(transpose(mat3(tangente,bitangente,fragNormal)));
 
-    N = rotation*N;
+    vec3 G = N;
+    N = /*rotation*N*/fragNormal;
 
     //Normalizando novamente a luz no espaço tangente
     vec3 L = normalize(light);
@@ -67,7 +68,7 @@ void main()
     //Calcula componente difusa da luz
     vec3 diffuse = max(0,iDif) * material.diffuse.rgb;
 
-    finalColor = (ambient + diffuse);
+    finalColor = (ambient + diffuse)*G;
 
     //Se certifica que a luz e a normal nao sao perpendiculares
     if( iDif > 0 )

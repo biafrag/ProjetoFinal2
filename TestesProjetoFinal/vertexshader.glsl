@@ -45,8 +45,8 @@ void main()
     //Matriz de rotação tbn para transformar luz para o eapaço tangente
     mat3 rotation = transpose(mat3(tangentVertexEye,bitangentVertexEye,fragNormal));
 
-    tangente = normalize(tangent);
-    bitangente = normalize(cross(fragNormal,tangentVertexEye));
+    tangente = normalize(tangentVertexEye);
+    bitangente = normalize(cross(fragNormal,tangente));
 
 
 }

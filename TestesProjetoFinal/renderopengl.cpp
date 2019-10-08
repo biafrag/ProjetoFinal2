@@ -321,7 +321,7 @@ void RenderOpengl::paintGL()
     //inversa transposta da model-view
     _program->setUniformValue("normalMatrix", mv.inverted().transposed());
     //Variáveis de material e luz
-    _program->setUniformValue("light", v * QVector3D(5,5,2));
+    _program->setUniformValue("light", v * cam.eye);
 
     _program->setUniformValue("lightPos", v * cam.eye);
 
@@ -373,12 +373,6 @@ void RenderOpengl::paintGL()
 void RenderOpengl::setMode(MeshTypes type)
 {
     _program->bind();
-    _points.clear();
-    _normals.clear();
-    _indexNormals.clear();
-    _indexPoints.clear();
-    _texCoords.clear();
-    _indexTex.clear();
 
     if(type == MeshTypes::ESFERA)
     {
@@ -402,11 +396,11 @@ void RenderOpengl::setMode(MeshTypes type)
     }
     else if (type == MeshTypes::LATA)
     {
-        setFile({{"../../MalhasTeste//MalhasComTextura/lata.obj"}});
+        setFile({{"../../MalhasTeste/MalhasComTextura/lata.obj"}});
     }
     else if (type == MeshTypes::ROBO)
     {
-        setFile({{"../../MalhasTeste/MalhasComTextura/robot.obj"}});
+        setFile({{"../../MalhasTeste/MalhasComTextura/robot2.obj"}});
     }
 
     createVAO();

@@ -45,6 +45,12 @@ uniform sampler2D Metallic;
 uniform sampler2D Ao;
 uniform sampler2D Roughness;
 
+vec3 expand(vec3 v)
+{
+   return (v - 0.5) * 2;
+}
+
+
 mat3 inverse(mat3 m) {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
   float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
@@ -341,29 +347,28 @@ void main()
         }
         else if (option == 3)
         {
+            mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
+            mat3 inverseTBN = inverse(TBN);
+            vec3 tangPos = TBN * worldPos;
 
             //Pegando normal usando pontos da vertical e horizontal
-            vec3 left = worldPos - dFdx(worldPos);
-            vec3 right = worldPos + dFdx(worldPos);
-            vec3 up = worldPos + dFdy(worldPos);
-            vec3 down = worldPos - dFdy(worldPos);
+            vec3 left = projPos - dFdx(projPos);
+            vec3 right = projPos + dFdx(projPos);
+            vec3 up = projPos + dFdy(projPos);
+            vec3 down = projPos - dFdy(projPos);
 
-            left = vec3(left.x,left.y,calculateNoise3(left));
-            right = vec3(right.x,right.y,calculateNoise3(right));
-            up = vec3(up.x,up.y,calculateNoise3(up));
-            down = vec3(down.x,down.y,calculateNoise3(down));
+            left = vec3(left.x,left.y,calculateNoise3(worldPos - dFdx(worldPos)));
+            right = vec3(right.x,right.y,calculateNoise3(worldPos + dFdx(worldPos)));
+            up = vec3(up.x,up.y,calculateNoise3(worldPos + dFdy(worldPos)));
+            down = vec3(down.x,down.y,calculateNoise3(worldPos - dFdy(worldPos)));
 
             vec3 v1 = normalize(right - left);
             vec3 v2 = normalize(up - down);
-            vec3 normal = cross(v1, v2);
-
-
-            mat3 inverseTBN = transpose(mat3(tangente,bitangente,worldNorm));
-            inverseTBN = inverse(inverseTBN);
+            vec3 normal = normalize(/*expand(*/cross(v1, v2));
 
             vec4 ambient = material.ambient;
-            vec3 G =  normalize(( normalMatrix * vec4( normal, 0 ) ).xyz);
-            vec3 N = fragNormal;
+            vec3 G =  /*inverseTBN * normalize(( normalMatrix * vec4(normal, 0 ) ).xyz)*/ inverseTBN * normal;
+            vec3 N = G;
             vec3 V = normalize(-fragPos);
             vec3 L = normalize(light - fragPos);
 
@@ -379,7 +384,7 @@ void main()
 
             finalColor = diffuse + ambient + specular;
 
-            finalColor = vec4((vec3(ambient) + vec3(diffuse))*normal+ vec3(specular),1);
+            finalColor = vec4((vec3(ambient) + vec3(diffuse))+ vec3(specular),1);
         }
         else if (option == 4)
         {
