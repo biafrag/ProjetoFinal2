@@ -26,6 +26,7 @@ uniform int isPBR; //Variavel indicando se estamos usando PBR
 uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com noise
 uniform int option; //Variável indicando qual o tipo de PBR, (sem noise, com noise no albedo etc)
 uniform mat4 normalMatrix; //Inversa transposta da MV
+uniform int bumpType;
 
 in vec3 fragNormal;
 in vec3 fragPos;
@@ -181,6 +182,52 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
     return ggx1 * ggx2;
 }
+
+
+vec3 calculateNormal(int type)
+{
+    //Pegando normal usando pontos da vertical e horizontal
+    vec3 left = projPos - dFdx(projPos);
+    vec3 right = projPos + dFdx(projPos);
+    vec3 up = projPos + dFdy(projPos);
+    vec3 down = projPos - dFdy(projPos);
+
+    if(type == 0)
+    {
+        left.z = calculateNoise1(worldPos - dFdx(worldPos));
+        right.z = calculateNoise1(worldPos + dFdx(worldPos));
+        up.z = calculateNoise1(worldPos + dFdy(worldPos));
+        down.z = calculateNoise1(worldPos - dFdy(worldPos));
+    }
+    else if(type == 1)
+    {
+        left.z = calculateNoise2(worldPos - dFdx(worldPos));
+        right.z = calculateNoise2(worldPos + dFdx(worldPos));
+        up.z = calculateNoise2(worldPos + dFdy(worldPos));
+        down.z = calculateNoise2(worldPos - dFdy(worldPos));
+     }
+    else if(type == 2)
+    {
+        left.z = calculateNoise3(worldPos - dFdx(worldPos));
+        right.z = calculateNoise3(worldPos + dFdx(worldPos));
+        up.z = calculateNoise3(worldPos + dFdy(worldPos));
+        down.z = calculateNoise3(worldPos - dFdy(worldPos));
+     }
+    else
+    {
+        left.z = calculateNoise4(worldPos - dFdx(worldPos));
+        right.z = calculateNoise4(worldPos + dFdx(worldPos));
+        up.z = calculateNoise4(worldPos + dFdy(worldPos));
+        down.z = calculateNoise4(worldPos - dFdy(worldPos));
+     }
+
+    vec3 v1 = normalize(right - left);
+    vec3 v2 = normalize(up - down);
+    vec3 normal = normalize(cross(v1, v2));
+
+    return normal;
+}
+
 void main()
 {
     //Noise com 6 oitavas
@@ -351,23 +398,9 @@ void main()
             mat3 inverseTBN = inverse(TBN);
             vec3 tangPos = TBN * worldPos;
 
-            //Pegando normal usando pontos da vertical e horizontal
-            vec3 left = projPos - dFdx(projPos);
-            vec3 right = projPos + dFdx(projPos);
-            vec3 up = projPos + dFdy(projPos);
-            vec3 down = projPos - dFdy(projPos);
-
-            left = vec3(left.x,left.y,calculateNoise3(worldPos - dFdx(worldPos)));
-            right = vec3(right.x,right.y,calculateNoise3(worldPos + dFdx(worldPos)));
-            up = vec3(up.x,up.y,calculateNoise3(worldPos + dFdy(worldPos)));
-            down = vec3(down.x,down.y,calculateNoise3(worldPos - dFdy(worldPos)));
-
-            vec3 v1 = normalize(right - left);
-            vec3 v2 = normalize(up - down);
-            vec3 normal = normalize(/*expand(*/cross(v1, v2));
-
+            vec3 normal = calculateNormal(bumpType);
             vec4 ambient = material.ambient;
-            vec3 G =  /*inverseTBN * normalize(( normalMatrix * vec4(normal, 0 ) ).xyz)*/ inverseTBN * normal;
+            vec3 G = inverseTBN * normal;
             vec3 N = G;
             vec3 V = normalize(-fragPos);
             vec3 L = normalize(light - fragPos);
@@ -384,7 +417,7 @@ void main()
 
             finalColor = diffuse + ambient + specular;
 
-            finalColor = vec4((vec3(ambient) + vec3(diffuse))+ vec3(specular),1);
+            finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1)+ vec3(specular),1);
         }
         else if (option == 4)
         {

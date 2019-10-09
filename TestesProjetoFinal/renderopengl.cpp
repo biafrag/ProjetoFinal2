@@ -333,6 +333,7 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("isPBR",  _isPBR);
      _program->setUniformValue("isDirty",  _isDirty);
     _program->setUniformValue("option", (int)_option);
+    _program->setUniformValue("bumpType", _bumpType);
 
     //Ativar e linkar a textura
     glActiveTexture(GL_TEXTURE0);
@@ -420,6 +421,11 @@ void RenderOpengl::setPBR(int isPBR)
 void RenderOpengl::setDirty(int isDirty)
 {
     _isDirty = isDirty;
+}
+
+void RenderOpengl::setBumpType(int bumpType)
+{
+    _bumpType = bumpType;
 }
 
 void RenderOpengl::setOption(Options option)

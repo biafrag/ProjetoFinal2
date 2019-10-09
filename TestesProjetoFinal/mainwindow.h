@@ -47,6 +47,14 @@ private slots:
 
     void on_DirtyCheckBox_clicked(bool checked);
 
+    void on_Bump1radioButton_clicked();
+
+    void on_Bump2radioButton_clicked();
+
+    void on_Bump3radioButton_clicked();
+
+    void on_Bump4radioButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

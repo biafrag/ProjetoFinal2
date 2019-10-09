@@ -143,3 +143,24 @@ void MainWindow::on_DirtyCheckBox_clicked(bool checked)
         ui->openGLWidget->setDirty(0);
     }
 }
+
+void MainWindow::on_Bump1radioButton_clicked()
+{
+    ui->openGLWidget->setBumpType(0);
+}
+
+void MainWindow::on_Bump2radioButton_clicked()
+{
+    ui->openGLWidget->setBumpType(1);
+}
+
+void MainWindow::on_Bump3radioButton_clicked()
+{
+    ui->openGLWidget->setBumpType(2);
+}
+
+void MainWindow::on_Bump4radioButton_clicked()
+{
+    ui->openGLWidget->setBumpType(3);
+}
+
