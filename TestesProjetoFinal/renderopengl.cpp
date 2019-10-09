@@ -68,7 +68,7 @@ void RenderOpengl::organizingData()
     {
         int idP = _indexPoints[i];
         int idN = _indexNormals[i];
-        int idT = _indexTex[i];
+        int idT = _indexPoints[i];
 
         points.push_back(_points[idP]);
         normals.push_back(_normals[idN]);
@@ -104,10 +104,10 @@ void RenderOpengl::quadToTriangleMesh(std::vector<int>& indexPointsQuad, std::ve
         unsigned int n2 = indexNormalsQuad[4 * i + 2];
         unsigned int n3 = indexNormalsQuad[4 * i + 3];
 
-        unsigned int t0 = indexTexQuad[4 * i];
-        unsigned int t1 = indexTexQuad[4 * i + 1];
-        unsigned int t2 = indexTexQuad[4 * i + 2];
-        unsigned int t3 = indexTexQuad[4 * i + 3];
+        unsigned int t0 = indexPointsQuad[4 * i];
+        unsigned int t1 = indexPointsQuad[4 * i + 1];
+        unsigned int t2 = indexPointsQuad[4 * i + 2];
+        unsigned int t3 = indexPointsQuad[4 * i + 3];
 
         //First triangle from quadrilateral element
         _indexPoints.push_back(v0);
@@ -275,7 +275,7 @@ void RenderOpengl::initializeGL()
         std::cout<<"Problemas ao linkar shaders"<<std::endl;
     }
 
-    setMode(MeshTypes::ESFERA);
+    setMode(MeshTypes::ROBO);
     setMaterial(MaterialTypes::SILVER);
     _program->bind();
     createNormalTexture("../../MalhasTeste/Texturas/golfball.png");
@@ -498,10 +498,16 @@ void RenderOpengl::printThings()
 //        printf( "%f %f %f\n",_normals[i].x(),_normals[i].y(),_normals[i].z());
 //    }
 
-    printf("Tangentes: \n");
-    for(unsigned int i = 0; i< _tangents.size(); i ++)
+//    printf("Tangentes: \n");
+//    for(unsigned int i = 0; i< _tangents.size(); i ++)
+//    {
+//        printf( "%f %f %f\n",_tangents[i].x(),_tangents[i].y(),_tangents[i].z());
+//    }
+
+    printf("Coordenadas de Textura: \n");
+    for(unsigned int i = 0; i< _texCoords.size()/3; i ++)
     {
-        printf( "%f %f %f\n",_tangents[i].x(),_tangents[i].y(),_tangents[i].z());
+        printf( "%f %f \n",_texCoords[i].x(),_texCoords[i].y());
     }
 
 
