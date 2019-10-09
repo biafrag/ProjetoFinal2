@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->groupBox_2->hide();
+    ui->groupBox_3->hide();
     ui->verticalSlider->setValue(3);
 }
 
@@ -121,11 +122,6 @@ void MainWindow::on_radioButton_3_clicked()
      ui->openGLWidget->setMode(MeshTypes::BULE);
 }
 
-void MainWindow::on_radioButton_4_clicked()
-{
-    ui->openGLWidget->setOption(Options::NORMAL);
-}
-
 void MainWindow::on_radioButton_5_clicked()
 {
     ui->openGLWidget->setOption(Options::CLOUDSALB);
@@ -164,3 +160,21 @@ void MainWindow::on_Bump4radioButton_clicked()
     ui->openGLWidget->setBumpType(3);
 }
 
+
+
+void MainWindow::on_radioButton_4_clicked(bool checked)
+{
+}
+
+void MainWindow::on_radioButton_4_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->openGLWidget->setOption(Options::NORMAL);
+        ui->groupBox_3->show();
+    }
+    else
+    {
+        ui->groupBox_3->hide();
+    }
+}

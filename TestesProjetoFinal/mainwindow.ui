@@ -156,6 +156,9 @@
              <property name="text">
               <string>Bump 1</string>
              </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -263,6 +266,9 @@
             </property>
             <property name="text">
              <string>Phong with Bump</string>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

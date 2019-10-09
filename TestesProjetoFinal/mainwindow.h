@@ -39,8 +39,6 @@ private slots:
 
     void on_radioButton_3_clicked();
 
-    void on_radioButton_4_clicked();
-
     void on_radioButton_5_clicked();
 
 
@@ -54,6 +52,10 @@ private slots:
     void on_Bump3radioButton_clicked();
 
     void on_Bump4radioButton_clicked();
+
+    void on_radioButton_4_clicked(bool checked);
+
+    void on_radioButton_4_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
