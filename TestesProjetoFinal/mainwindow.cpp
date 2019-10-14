@@ -8,6 +8,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->groupBox_2->hide();
     ui->groupBox_3->hide();
     ui->verticalSlider->setValue(3);
+    ui->verticalSlider->hide();
+    ui->COPPERLabel->hide();
+    ui->GOLDLabel->hide();
+    ui->POLSILVERLabel->hide();
+    ui->SILVERLabel->hide();
 }
 
 MainWindow::~MainWindow()
@@ -87,11 +92,11 @@ void MainWindow::on_checkBox_clicked(bool checked)
     else
     {
         ui->openGLWidget->setPBR(0);
-        ui->verticalSlider->show();
-        ui->COPPERLabel->show();
-        ui->GOLDLabel->show();
-        ui->POLSILVERLabel->show();
-        ui->SILVERLabel->show();
+//        ui->verticalSlider->show();
+//        ui->COPPERLabel->show();
+//        ui->GOLDLabel->show();
+//        ui->POLSILVERLabel->show();
+//        ui->SILVERLabel->show();
         ui->DirtyCheckBox->show();
         ui->groupBox_2->hide();
     }
@@ -177,4 +182,9 @@ void MainWindow::on_radioButton_4_toggled(bool checked)
     {
         ui->groupBox_3->hide();
     }
+}
+
+void MainWindow::on_radioButton_6_clicked()
+{
+    ui->openGLWidget->setBumpType(4);
 }

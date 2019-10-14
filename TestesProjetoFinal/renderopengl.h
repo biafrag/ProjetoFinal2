@@ -112,7 +112,7 @@ private:
 
     int _isPBR{0};
     int _isDirty{1};
-    int _bumpType{0};
+    int _bumpType{4};
     Options _option;
 };
 

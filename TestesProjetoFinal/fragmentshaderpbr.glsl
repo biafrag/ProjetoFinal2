@@ -111,15 +111,6 @@ float calculateNoise1(vec3 pos)
 float calculateNoise2(vec3 pos)
 {
     float z = 0;
-//    float scale = 4;
-//    float persistency = 0.5;
-//    int numOctaves = 4;
-//    for(int i = 0; i < numOctaves;i++)
-//    {
-//        z += noise(scale * pos) * persistency;
-//        scale *= 2;
-//        persistency /= 2;
-//    }
     float oct3 = noise(16*pos)*0.25/2;
     float oct4 = noise(32*pos)*0.25/4;
    z =  min(1.0,oct3 + oct4*5.0 );
@@ -398,26 +389,50 @@ void main()
             mat3 inverseTBN = inverse(TBN);
             vec3 tangPos = TBN * worldPos;
 
-            vec3 normal = calculateNormal(bumpType);
-            vec4 ambient = material.ambient;
-            vec3 G = inverseTBN * normal;
-            vec3 N = G;
-            vec3 V = normalize(-fragPos);
-            vec3 L = normalize(light - fragPos);
+            if(bumpType == 4)
+            {
+                //vec3 colorNoise;
+                vec4 ambient = material.ambient;
+                vec3 N = normalize(fragNormal);
+                vec3 V = normalize(-fragPos);
+                vec3 L = normalize(light - fragPos);
 
-            vec4 diffuse = vec4(0.0,0.0,0.0,1);
-            vec4 specular = vec4(0.0,0.0,0.0,1);
-            float iDif = max(0,dot(L,N));
+                vec4 diffuse = vec4(0.0,0.0,0.0,1);
+                vec4 specular = vec4(0.0,0.0,0.0,1);
+                float iDif = max(0,dot(L,N));
 
-            diffuse = iDif * material.diffuse;
+                diffuse = iDif * material.diffuse;
 
-            vec3 r = normalize(reflect(-L, N));
-            float iSpec = pow(max(dot(V,r),0.0), material.shininess);
-            specular = iSpec * material.specular;
+                vec3 r = normalize(reflect(-L, N));
+                float iSpec = pow(max(dot(V,r),0.0), material.shininess);
+                specular = iSpec * material.specular;
 
-            finalColor = diffuse + ambient + specular;
+                finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1) + vec3(specular),1);
+            }
+            else
+            {
+                vec3 normal = calculateNormal(bumpType);
 
-            finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1)+ vec3(specular),1);
+                vec4 ambient = material.ambient;
+                vec3 N = inverseTBN * normal;
+                vec3 V = normalize(-fragPos);
+                vec3 L = normalize(light - fragPos);
+
+                vec4 diffuse = vec4(0.0,0.0,0.0,1);
+                vec4 specular = vec4(0.0,0.0,0.0,1);
+                float iDif = max(0,dot(L,N));
+
+                diffuse = iDif * material.diffuse;
+
+                vec3 r = normalize(reflect(-L, N));
+                float iSpec = pow(max(dot(V,r),0.0), material.shininess);
+                specular = iSpec * material.specular;
+
+                finalColor = diffuse + ambient + specular;
+
+                finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1)+ vec3(specular),1);
+            }
+
         }
         else if (option == 4)
         {

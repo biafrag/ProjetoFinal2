@@ -68,7 +68,7 @@ void RenderOpengl::organizingData()
     {
         int idP = _indexPoints[i];
         int idN = _indexNormals[i];
-        int idT = _indexPoints[i];
+        int idT = _indexTex[i];
 
         points.push_back(_points[idP]);
         normals.push_back(_normals[idN]);
@@ -104,10 +104,10 @@ void RenderOpengl::quadToTriangleMesh(std::vector<int>& indexPointsQuad, std::ve
         unsigned int n2 = indexNormalsQuad[4 * i + 2];
         unsigned int n3 = indexNormalsQuad[4 * i + 3];
 
-        unsigned int t0 = indexPointsQuad[4 * i];
-        unsigned int t1 = indexPointsQuad[4 * i + 1];
-        unsigned int t2 = indexPointsQuad[4 * i + 2];
-        unsigned int t3 = indexPointsQuad[4 * i + 3];
+        unsigned int t0 = indexTexQuad[4 * i];
+        unsigned int t1 = indexTexQuad[4 * i + 1];
+        unsigned int t2 = indexTexQuad[4 * i + 2];
+        unsigned int t3 = indexTexQuad[4 * i + 3];
 
         //First triangle from quadrilateral element
         _indexPoints.push_back(v0);
@@ -275,11 +275,11 @@ void RenderOpengl::initializeGL()
         std::cout<<"Problemas ao linkar shaders"<<std::endl;
     }
 
-    setMode(MeshTypes::ROBO);
+    setMode(MeshTypes::ESFERA);
     setMaterial(MaterialTypes::SILVER);
     _program->bind();
-    createNormalTexture("../../MalhasTeste/Texturas/golfball.png");
-    createPBRTextures({"../../MalhasTeste/Texturas/albedo.png","../../MalhasTeste/Texturas/metalness.png","../../MalhasTeste/Texturas/roughness.png","../../MalhasTeste/Texturas/ao.png"});
+    createNormalTexture("../MalhasTeste/Texturas/golfball.png");
+    createPBRTextures({"../MalhasTeste/Texturas/albedo.png","../MalhasTeste/Texturas/metalness.png","../MalhasTeste/Texturas/roughness.png","../MalhasTeste/Texturas/ao.png"});
 
 }
 
@@ -377,31 +377,31 @@ void RenderOpengl::setMode(MeshTypes type)
 
     if(type == MeshTypes::ESFERA)
     {
-        setFile({"../../MalhasTeste/MalhasComTextura/golfball.obj"});
+        setFile({"../MalhasTeste/MalhasComTextura/golfball.obj"});
     }
     else if (type == MeshTypes::BULE)
     {
-        setFile({"../../MalhasTeste/MalhasComTextura/teapot.obj"});
+        setFile({"../MalhasTeste/MalhasComTextura/teapot.obj"});
     }
     else if (type == MeshTypes::TROFEU)
     {
-        setFile({"../../MalhasTeste/MalhasComTextura/trofeu.obj"});
+        setFile({"../MalhasTeste/MalhasComTextura/trofeu.obj"});
     }
     else if (type == MeshTypes::VENTILADOR)
     {
-         setFile({"../../MalhasTeste/ventilator.obj"});
+         setFile({"../MalhasTeste/ventilator.obj"});
     }
     else if (type == MeshTypes::BRINCOS)
     {
-         setFile({"../../MalhasTeste/earings.obj"});
+         setFile({"../MalhasTeste/earings.obj"});
     }
     else if (type == MeshTypes::LATA)
     {
-        setFile({{"../../MalhasTeste/MalhasComTextura/lata.obj"}});
+        setFile({{"../MalhasTeste/MalhasComTextura/lata.obj"}});
     }
     else if (type == MeshTypes::ROBO)
     {
-        setFile({{"../../MalhasTeste/MalhasComTextura/robot2.obj"}});
+        setFile({{"../MalhasTeste/MalhasComTextura/robot2.obj"}});
     }
 
     createVAO();
@@ -505,7 +505,7 @@ void RenderOpengl::printThings()
 //    }
 
     printf("Coordenadas de Textura: \n");
-    for(unsigned int i = 0; i< _texCoords.size()/3; i ++)
+    for(unsigned int i = 0; i< _texCoords.size(); i ++)
     {
         printf( "%f %f \n",_texCoords[i].x(),_texCoords[i].y());
     }

@@ -57,6 +57,8 @@ private slots:
 
     void on_radioButton_4_toggled(bool checked);
 
+    void on_radioButton_6_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

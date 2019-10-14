@@ -152,12 +152,22 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
+            <widget class="QRadioButton" name="radioButton_6">
+             <property name="text">
+              <string>Sem Bump</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QRadioButton" name="Bump1radioButton">
              <property name="text">
               <string>Bump 1</string>
              </property>
              <property name="checked">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
