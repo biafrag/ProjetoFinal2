@@ -31,15 +31,14 @@ private slots:
 
     void on_GoldRadioButton_clicked();
 
+    void on_CloudRoughnessNoiseRadioButton_clicked();
+
     void on_radioButton_clicked();
 
     void on_NoNoiseRadioButton_clicked();
-
-    void on_radioButton_2_clicked();
+    void on_CloudsAlbedoRadioButton_clicked();
 
     void on_radioButton_3_clicked();
-
-    void on_radioButton_5_clicked();
 
 
 
@@ -53,11 +52,14 @@ private slots:
 
     void on_Bump4radioButton_clicked();
 
-    void on_radioButton_4_clicked(bool checked);
+    void on_WithoutBumpradioButton_clicked();
 
-    void on_radioButton_4_toggled(bool checked);
+    void on_BumpWithColorradioButton_clicked();
 
-    void on_radioButton_6_clicked();
+    void on_PhongBumpRadioButton_toggled(bool checked);
+
+
+    void on_PBRgBumpRadioButton_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;

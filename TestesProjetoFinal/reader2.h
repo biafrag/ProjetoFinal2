@@ -68,7 +68,7 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
           std::string auxtype ;
           myfile >> auxtype;
           int cont = 0;
-          while(auxtype != "f")
+          while(auxtype != "f" && auxtype != "v" && auxtype != "vn" && auxtype != "vt")
           {
               if(myfile.eof())
               {

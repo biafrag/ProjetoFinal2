@@ -117,20 +117,11 @@ void MainWindow::on_NoNoiseRadioButton_clicked()
         ui->openGLWidget->setOption(Options::NONOISE);
 }
 
-void MainWindow::on_radioButton_2_clicked()
-{
-    ui->openGLWidget->setOption(Options::CLOUDSROUGH);
-}
-
 void MainWindow::on_radioButton_3_clicked()
 {
      ui->openGLWidget->setMode(MeshTypes::BULE);
 }
 
-void MainWindow::on_radioButton_5_clicked()
-{
-    ui->openGLWidget->setOption(Options::CLOUDSALB);
-}
 
 
 void MainWindow::on_DirtyCheckBox_clicked(bool checked)
@@ -165,13 +156,28 @@ void MainWindow::on_Bump4radioButton_clicked()
     ui->openGLWidget->setBumpType(3);
 }
 
-
-
-void MainWindow::on_radioButton_4_clicked(bool checked)
+void MainWindow::on_WithoutBumpradioButton_clicked()
 {
+    ui->openGLWidget->setBumpType(4);
 }
 
-void MainWindow::on_radioButton_4_toggled(bool checked)
+
+void MainWindow::on_BumpWithColorradioButton_clicked()
+{
+    ui->openGLWidget->setBumpType(5);
+}
+
+void MainWindow::on_CloudRoughnessNoiseRadioButton_clicked()
+{
+    ui->openGLWidget->setOption(Options::CLOUDSROUGH);
+}
+
+void MainWindow::on_CloudsAlbedoRadioButton_clicked()
+{
+    ui->openGLWidget->setOption(Options::CLOUDSALB);
+}
+
+void MainWindow::on_PhongBumpRadioButton_toggled(bool checked)
 {
     if(checked)
     {
@@ -184,7 +190,16 @@ void MainWindow::on_radioButton_4_toggled(bool checked)
     }
 }
 
-void MainWindow::on_radioButton_6_clicked()
+
+void MainWindow::on_PBRgBumpRadioButton_toggled(bool checked)
 {
-    ui->openGLWidget->setBumpType(4);
+    if(checked)
+    {
+        ui->openGLWidget->setOption(Options::NORMALPBR);
+        ui->groupBox_3->show();
+    }
+    else
+    {
+        ui->groupBox_3->hide();
+    }
 }

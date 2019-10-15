@@ -16,7 +16,8 @@ enum class Options : int
     GOLD = 1,
     CLOUDSROUGH = 2,
     NORMAL = 3,
-    CLOUDSALB = 4
+    CLOUDSALB = 4,
+    NORMALPBR = 5
 
 };
 

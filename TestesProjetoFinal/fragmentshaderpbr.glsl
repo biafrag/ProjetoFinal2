@@ -431,6 +431,14 @@ void main()
                 finalColor = diffuse + ambient + specular;
 
                 finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1)+ vec3(specular),1);
+                if(bumpType == 5)
+                {
+                    vec3 backColor = vec3(1,1,1);
+                    vec3 detailColor = vec3(0, 0, 0);
+                    float noise = calculateNoise4(worldPos);
+                    vec3 color = mix(detailColor,backColor,noise);
+                    finalColor = vec4((vec3(ambient) + vec3(diffuse)) * color + vec3(specular),1);
+                }
             }
 
         }
@@ -442,6 +450,61 @@ void main()
             float ao = texture(Ao,UV).r;
 
             vec3 N = normalize(fragNormal);
+            vec3 V = normalize(-fragPos);
+            vec3 F0 = vec3(0.04);
+            F0 = mix(F0, albedo, metallic);
+
+              // reflectance equation
+              vec3 Lo = vec3(0.0);
+              vec3 specular;
+              for(int i = 0; i < 4; i++)
+              {
+                  // calculate per-light radiance
+                  vec3 L = normalize(lights[i].Position - fragPos);
+                  vec3 H = normalize(V + L);
+                  float distance   = length(lights[i].Position - fragPos);
+                  float attenuation = 1.0 / (distance * distance);
+                  vec3 radiance = vec3(1,1,1) * attenuation;
+
+                  // cook-torrance brdf
+                  float NDF = DistributionGGX(N, H, roughness);
+                  float G   = GeometrySmith(N, V, L, roughness);
+                  vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+                  vec3 kS = F;
+                  vec3 kD = vec3(1.0) - kS;
+                  kD *= 1.0 - metallic;
+
+                  vec3 numerator    = NDF * G * F;
+                  float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+                  specular     = numerator / max(denominator, 0.001);
+
+                  // add to outgoing radiance Lo
+                  float NdotL = max(dot(N, L), 0.0);
+                  Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+
+
+              }
+              vec3 ambient = vec3(0.05) * albedo * ao;
+              vec3 color = ambient + Lo;
+              color = color / (color + vec3(1.0));
+              color = pow(color, vec3(1.0/2.2));;
+
+              finalColor = vec4(color, 1.0);
+        }
+        else if (option == 5)
+        {
+            mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
+            mat3 inverseTBN = inverse(TBN);
+            vec3 tangPos = TBN * worldPos;
+            vec3 normal = calculateNormal(bumpType);
+
+            vec3 albedo = texture(Albedo,UV).rgb;
+            float metallic = texture(Metallic,UV).r;
+            float roughness = texture(Roughness,UV).r;
+            float ao = texture(Ao,UV).r;
+
+            vec3 N = inverseTBN * normal;
             vec3 V = normalize(-fragPos);
             vec3 F0 = vec3(0.04);
             F0 = mix(F0, albedo, metallic);

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1425</width>
+    <width>1487</width>
     <height>734</height>
    </rect>
   </property>
@@ -15,6 +15,13 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="2">
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>PBR</string>
+      </property>
+     </widget>
+    </item>
     <item row="2" column="0">
      <widget class="RenderOpengl" name="openGLWidget">
       <property name="sizePolicy">
@@ -28,13 +35,6 @@
         <width>900</width>
         <height>600</height>
        </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QCheckBox" name="checkBox">
-      <property name="text">
-       <string>PBR</string>
       </property>
      </widget>
     </item>
@@ -104,6 +104,16 @@
       </item>
      </layout>
     </item>
+    <item row="3" column="4">
+     <widget class="QCheckBox" name="DirtyCheckBox">
+      <property name="text">
+       <string>Dirty</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
     <item row="2" column="3">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
@@ -152,9 +162,9 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QRadioButton" name="radioButton_6">
+            <widget class="QRadioButton" name="WithoutBumpradioButton">
              <property name="text">
-              <string>Sem Bump</string>
+              <string>Without Bump</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -192,6 +202,13 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QRadioButton" name="BumpWithColorradioButton">
+             <property name="text">
+              <string>Bump with color</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -200,8 +217,8 @@
           <rect>
            <x>9</x>
            <y>22</y>
-           <width>321</width>
-           <height>131</height>
+           <width>331</width>
+           <height>151</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -241,7 +258,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_2">
+           <widget class="QRadioButton" name="CloudRoughnessNoiseRadioButton">
             <property name="minimumSize">
              <size>
               <width>300</width>
@@ -254,7 +271,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_5">
+           <widget class="QRadioButton" name="CloudsAlbedoRadioButton">
             <property name="minimumSize">
              <size>
               <width>300</width>
@@ -267,7 +284,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="radioButton_4">
+           <widget class="QRadioButton" name="PhongBumpRadioButton">
             <property name="minimumSize">
              <size>
               <width>300</width>
@@ -279,6 +296,13 @@
             </property>
             <property name="autoRepeat">
              <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="PBRgBumpRadioButton">
+            <property name="text">
+             <string>PBR with Bump</string>
             </property>
            </widget>
           </item>
@@ -333,16 +357,6 @@
       </item>
      </layout>
     </item>
-    <item row="3" column="4">
-     <widget class="QCheckBox" name="DirtyCheckBox">
-      <property name="text">
-       <string>Dirty</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -350,7 +364,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1425</width>
+     <width>1487</width>
      <height>17</height>
     </rect>
    </property>

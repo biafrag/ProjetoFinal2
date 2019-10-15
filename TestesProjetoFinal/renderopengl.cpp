@@ -393,7 +393,7 @@ void RenderOpengl::setMode(MeshTypes type)
     }
     else if (type == MeshTypes::BRINCOS)
     {
-         setFile({"../MalhasTeste/earings.obj"});
+         setFile({"../MalhasTeste/MalhasComTextura/brincos.obj"});
     }
     else if (type == MeshTypes::LATA)
     {
