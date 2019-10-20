@@ -433,11 +433,24 @@ void main()
                 finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1)+ vec3(specular),1);
                 if(bumpType == 5)
                 {
-                    vec3 backColor = vec3(1,1,1);
-                    vec3 detailColor = vec3(0, 0, 0);
-                    float noise = calculateNoise4(worldPos);
-                    vec3 color = mix(detailColor,backColor,noise);
-                    finalColor = vec4((vec3(ambient) + vec3(diffuse)) * color + vec3(specular),1);
+                    //Noise com 6 oitavas
+                    f = abs(calculateNoise4(worldPos));
+                    skyColor = vec3(1,1,1);
+                    cloudColor = vec3(0, 0, 1);
+                    //f = clamp(f * 4 ,0,1);
+                    colorNoise = mix(skyColor,cloudColor,4*f);
+                    //colorNoise = vec3(f,f,f);
+                    if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
+                    {
+                        colorNoise = vec3(0.5, 0.3, 0.3);
+                    }
+                    else
+                    {
+                        colorNoise = vec3(0.5,0.8,1);
+                    }
+
+                    finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+
                 }
             }
 
@@ -501,7 +514,7 @@ void main()
 
             vec3 albedo = texture(Albedo,UV).rgb;
             float metallic = texture(Metallic,UV).r;
-            float roughness = texture(Roughness,UV).r;
+            float roughness = /*texture(Roughness,UV).r*/ colorNoise.r;
             float ao = texture(Ao,UV).r;
 
             vec3 N = inverseTBN * normal;
@@ -546,6 +559,27 @@ void main()
               color = pow(color, vec3(1.0/2.2));;
 
               finalColor = vec4(color, 1.0);
+
+              if(bumpType == 5)
+              {
+                  //Noise com 6 oitavas
+                  f = abs(calculateNoise4(worldPos));
+                  skyColor = vec3(1,1,1);
+                  cloudColor = vec3(0, 0, 1);
+                  //f = clamp(f * 4 ,0,1);
+                  colorNoise = mix(skyColor,cloudColor,4*f);
+                  //colorNoise = vec3(f,f,f);
+                  if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
+                  {
+                      colorNoise = vec3(0.5, 0.3, 0.3);
+                      color = colorNoise * ambient + colorNoise *Lo;
+                      color = color / (color + vec3(1.0));
+                      color = pow(color, vec3(1.0/2.2));;
+
+                      finalColor = vec4(color, 1.0);
+                  }
+
+              }
         }
     }
     else

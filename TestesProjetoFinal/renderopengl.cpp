@@ -321,9 +321,9 @@ void RenderOpengl::paintGL()
     //inversa transposta da model-view
     _program->setUniformValue("normalMatrix", mv.inverted().transposed());
     //Variáveis de material e luz
-    _program->setUniformValue("light", v * cam.eye);
+    _program->setUniformValue("light",v * cam.eye);
 
-    _program->setUniformValue("lightPos", v * cam.eye);
+    _program->setUniformValue("lightPos", v * QVector3D(5,5,5));
 
     _program->setUniformValue("lights[0].Position", v*QVector3D(1,1,2));
     _program->setUniformValue("lights[1].Position",  v*QVector3D(-1,1,2));
