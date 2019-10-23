@@ -334,6 +334,8 @@ void RenderOpengl::paintGL()
      _program->setUniformValue("isDirty",  _isDirty);
     _program->setUniformValue("option", (int)_option);
     _program->setUniformValue("bumpType", _bumpType);
+    _program->setUniformValue("sizeImperfections", _sizeImperfections);
+    _program->setUniformValue("numberImperfections", _numberImperfections);
 
     //Ativar e linkar a textura
     glActiveTexture(GL_TEXTURE0);
@@ -431,6 +433,16 @@ void RenderOpengl::setBumpType(int bumpType)
 void RenderOpengl::setOption(Options option)
 {
     _option = option;
+}
+
+void RenderOpengl::setNumberImperfections(int n)
+{
+    _numberImperfections = n;
+}
+
+void RenderOpengl::setSizeImperfections(int n)
+{
+    _sizeImperfections = n;
 }
 
 

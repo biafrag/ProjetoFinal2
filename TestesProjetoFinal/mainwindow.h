@@ -61,6 +61,15 @@ private slots:
 
     void on_PBRgBumpRadioButton_toggled(bool checked);
 
+
+    void on_BumpTesteradioButton_clicked();
+
+    void on_numerImperfectionsSlider_valueChanged(int value);
+
+    void on_BumpTesteradioButton_toggled(bool checked);
+
+    void on_sizeImperfectionsSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
 };

@@ -31,6 +31,8 @@ public:
     void setDirty(int isDirty);
     void setBumpType(int bumpType);
     void setOption(Options option);
+    void setNumberImperfections(int n);
+    void setSizeImperfections(int n);
 
 private:
     //Classe do qt que permite os shaders serem linkados e usados
@@ -113,6 +115,8 @@ private:
     int _isPBR{0};
     int _isDirty{1};
     int _bumpType{4};
+    int _numberImperfections{0};
+    int _sizeImperfections{0};
     Options _option;
 };
 

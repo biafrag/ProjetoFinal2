@@ -15,29 +15,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="2">
-     <widget class="QCheckBox" name="checkBox">
-      <property name="text">
-       <string>PBR</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="RenderOpengl" name="openGLWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>900</width>
-        <height>600</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -136,10 +113,10 @@
         <widget class="QGroupBox" name="groupBox_3">
          <property name="geometry">
           <rect>
-           <x>20</x>
-           <y>210</y>
-           <width>3000</width>
-           <height>3000</height>
+           <x>10</x>
+           <y>240</y>
+           <width>3101</width>
+           <height>3001</height>
           </rect>
          </property>
          <property name="minimumSize">
@@ -157,7 +134,7 @@
             <x>10</x>
             <y>80</y>
             <width>221</width>
-            <height>121</height>
+            <height>138</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -203,6 +180,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QRadioButton" name="BumpTesteradioButton">
+             <property name="text">
+              <string>Bump Teste</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QRadioButton" name="BumpWithColorradioButton">
              <property name="text">
               <string>Bump with color</string>
@@ -210,6 +194,88 @@
             </widget>
            </item>
           </layout>
+         </widget>
+         <widget class="QLabel" name="label">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>210</y>
+            <width>200</width>
+            <height>100</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>10</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Number of Imperfections</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_2">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>270</y>
+            <width>200</width>
+            <height>100</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Size of Imperfections</string>
+          </property>
+         </widget>
+         <widget class="QSlider" name="sizeImperfectionsSlider">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>330</y>
+            <width>141</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="maximum">
+           <number>3</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBelow</enum>
+          </property>
+         </widget>
+         <widget class="QSlider" name="numerImperfectionsSlider">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>270</y>
+            <width>141</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="maximum">
+           <number>3</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBelow</enum>
+          </property>
          </widget>
         </widget>
         <widget class="QWidget" name="verticalLayoutWidget">
@@ -310,52 +376,30 @@
         </widget>
        </widget>
       </item>
-      <item>
-       <widget class="QSlider" name="verticalSlider">
-        <property name="maximum">
-         <number>3</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksAbove</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QLabel" name="SILVERLabel">
-          <property name="text">
-           <string>SILVER</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="POLSILVERLabel">
-          <property name="text">
-           <string>POLISHED SILVER</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="GOLDLabel">
-          <property name="text">
-           <string>GOLD</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="COPPERLabel">
-          <property name="text">
-           <string>COPPER</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
+    </item>
+    <item row="0" column="2">
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>PBR</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="RenderOpengl" name="openGLWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>900</width>
+        <height>600</height>
+       </size>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

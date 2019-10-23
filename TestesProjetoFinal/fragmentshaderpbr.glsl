@@ -27,6 +27,8 @@ uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com nois
 uniform int option; //Variável indicando qual o tipo de PBR, (sem noise, com noise no albedo etc)
 uniform mat4 normalMatrix; //Inversa transposta da MV
 uniform int bumpType;
+uniform int sizeImperfections;
+uniform int numberImperfections;
 
 in vec3 fragNormal;
 in vec3 fragPos;
@@ -135,6 +137,67 @@ float calculateNoise4(vec3 pos)
     return z;
 }
 
+float calculateNoiseTeste(vec3 pos)
+{
+    float z = 0;
+    float oct1 =  noise(4*pos)*0.5;
+    float oct2 = noise(8*pos)*0.25;
+    float oct3 = noise(16*pos)*0.25/2;
+    float oct4 = noise(32*pos)*0.25/4;
+    float oct5 = noise(64*pos)*0.25/8;
+    //z = min(0.03,sin(oct1));
+    //z = min(0.03,sin(oct2));
+    //z = min(0.03,sin(oct3));
+    //z = min(0.03,sin(oct4));
+
+//    float z1 = min(0.03,sin(oct1));
+//    float z2 = min(0.03,sin(oct2));
+//    float z3 = min(0.03,sin(oct3));
+//    float z4 = min(0.03,sin(oct4));
+
+//    z = 6*z3;
+
+    float c;
+    if(sizeImperfections == 0)
+    {
+        c = 0.01;
+    }
+    else if (sizeImperfections == 1)
+    {
+        c = 0.03;
+    }
+    else if (sizeImperfections == 2)
+    {
+        c = 0.05;
+    }
+    else
+    {
+        c = 0.07;
+    }
+
+    float z1 = 6*min(c,oct1) + oct1/4;
+    float z2 = 6*min(c,oct2) + oct2/4;
+    float z3 = 6*min(c,oct3) + oct3/4;
+    float z4 = 6*min(c,oct4) + oct4/4;
+    float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
+    if(numberImperfections == 0)
+    {
+       z = z1;
+    }
+    else if (numberImperfections == 1)
+    {
+        z = z2;
+    }
+    else if (numberImperfections == 2)
+    {
+        z = z3;
+    }
+    else
+    {
+        z = z4;
+    }
+    return z;
+}
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -204,6 +267,13 @@ vec3 calculateNormal(int type)
         up.z = calculateNoise3(worldPos + dFdy(worldPos));
         down.z = calculateNoise3(worldPos - dFdy(worldPos));
      }
+    else if (type == 6)
+    {
+        left.z = calculateNoiseTeste(worldPos - dFdx(worldPos));
+        right.z = calculateNoiseTeste(worldPos + dFdx(worldPos));
+        up.z = calculateNoiseTeste(worldPos + dFdy(worldPos));
+        down.z = calculateNoiseTeste(worldPos - dFdy(worldPos));
+    }
     else
     {
         left.z = calculateNoise4(worldPos - dFdx(worldPos));
@@ -434,7 +504,7 @@ void main()
                 if(bumpType == 5)
                 {
                     //Noise com 6 oitavas
-                    f = abs(calculateNoise4(worldPos));
+                    f = calculateNoise4(worldPos);
                     skyColor = vec3(1,1,1);
                     cloudColor = vec3(0, 0, 1);
                     //f = clamp(f * 4 ,0,1);
@@ -515,6 +585,13 @@ void main()
             vec3 albedo = texture(Albedo,UV).rgb;
             float metallic = texture(Metallic,UV).r;
             float roughness = /*texture(Roughness,UV).r*/ colorNoise.r;
+            //Noise com 6 oitavas
+            f = calculateNoise4(worldPos);
+            skyColor = vec3(1,1,1);
+            cloudColor = vec3(0, 0, 1);
+            //f = clamp(f * 4 ,0,1);
+            colorNoise = mix(skyColor,cloudColor,4*f);
+            //colorNoise = vec3(f,f,f);
             float ao = texture(Ao,UV).r;
 
             vec3 N = inverseTBN * normal;
@@ -563,7 +640,7 @@ void main()
               if(bumpType == 5)
               {
                   //Noise com 6 oitavas
-                  f = abs(calculateNoise4(worldPos));
+                  f = calculateNoise4(worldPos);
                   skyColor = vec3(1,1,1);
                   cloudColor = vec3(0, 0, 1);
                   //f = clamp(f * 4 ,0,1);
@@ -575,7 +652,6 @@ void main()
                       color = colorNoise * ambient + colorNoise *Lo;
                       color = color / (color + vec3(1.0));
                       color = pow(color, vec3(1.0/2.2));;
-
                       finalColor = vec4(color, 1.0);
                   }
 
