@@ -70,6 +70,8 @@ private slots:
 
     void on_sizeImperfectionsSlider_valueChanged(int value);
 
+    void on_BumpMarbleradioButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

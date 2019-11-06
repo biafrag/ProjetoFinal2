@@ -53,7 +53,7 @@ vec3 expand(vec3 v)
    return (v - 0.5) * 2;
 }
 
-
+//Função que calcula a inversa de uma matriz m
 mat3 inverse(mat3 m) {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
   float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
@@ -74,6 +74,8 @@ float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
 float noise(vec3 p){
+
+    //Geração de numero aleatório
     vec3 a = floor(p);
     vec3 d = p - a;
     d = d * d * (3.0 - 2.0 * d);
@@ -92,7 +94,10 @@ float noise(vec3 p){
     vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
     vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
 
-    return o4.y * d.y + o4.x * (1.0 - d.y);
+    //Parte da Interpolação Linear Final
+    float i = o4.y * d.y + o4.x * (1.0 - d.y);
+
+    return i;
 }
 
 float calculateNoise1(vec3 pos)
@@ -115,7 +120,7 @@ float calculateNoise2(vec3 pos)
     float z = 0;
     float oct3 = noise(16*pos)*0.25/2;
     float oct4 = noise(32*pos)*0.25/4;
-   z =  min(1.0,oct3 + oct4*5.0 );
+    z =  min(1.0,oct3 + oct4*5.0 );
     return z;
 }
 
@@ -137,6 +142,19 @@ float calculateNoise4(vec3 pos)
     return z;
 }
 
+float calculateNoiseMarble(vec3 pos)
+{
+    float z = 0;
+    float xPeriod = 5.0; //defines repetition of marble lines in x direction
+    float yPeriod = 10.0; //defines repetition of marble lines in y direction
+    float turbPower = 5.0; //makes twists
+    float turbSize = 32.0; //initial size of the turbulence
+    float xyValue = pos.x * xPeriod / pos.y * yPeriod /turbPower * calculateNoise1(pos) / 256.0;
+    float sineValue = 256 * abs(sin(xyValue * 3.14159));
+    z = sineValue;
+    return z;
+}
+
 float calculateNoiseTeste(vec3 pos)
 {
     float z = 0;
@@ -145,17 +163,6 @@ float calculateNoiseTeste(vec3 pos)
     float oct3 = noise(16*pos)*0.25/2;
     float oct4 = noise(32*pos)*0.25/4;
     float oct5 = noise(64*pos)*0.25/8;
-    //z = min(0.03,sin(oct1));
-    //z = min(0.03,sin(oct2));
-    //z = min(0.03,sin(oct3));
-    //z = min(0.03,sin(oct4));
-
-//    float z1 = min(0.03,sin(oct1));
-//    float z2 = min(0.03,sin(oct2));
-//    float z3 = min(0.03,sin(oct3));
-//    float z4 = min(0.03,sin(oct4));
-
-//    z = 6*z3;
 
     float c;
     if(sizeImperfections == 0)
@@ -199,6 +206,7 @@ float calculateNoiseTeste(vec3 pos)
     return z;
 }
 
+//Funções relativas ao PBR
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
@@ -237,7 +245,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-
+//Função para calcular o vetor normal (Do BumpMap)
 vec3 calculateNormal(int type)
 {
     //Pegando normal usando pontos da vertical e horizontal
@@ -274,6 +282,13 @@ vec3 calculateNormal(int type)
         up.z = calculateNoiseTeste(worldPos + dFdy(worldPos));
         down.z = calculateNoiseTeste(worldPos - dFdy(worldPos));
     }
+    else if (type == 7)
+    {
+        left.z = calculateNoiseMarble(worldPos - dFdx(worldPos));
+        right.z = calculateNoiseMarble(worldPos + dFdx(worldPos));
+        up.z = calculateNoiseMarble(worldPos + dFdy(worldPos));
+        down.z = calculateNoiseMarble(worldPos - dFdy(worldPos));
+    }
     else
     {
         left.z = calculateNoise4(worldPos - dFdx(worldPos));
@@ -289,6 +304,26 @@ vec3 calculateNormal(int type)
     return normal;
 }
 
+vec3 calculateColorImperfections()
+{
+    //Noise com 6 oitavas
+    float f = calculateNoiseTeste(worldPos);
+    vec3 color1 = vec3(1,1,1);
+    vec3 color2 = vec3(0, 0, 1);
+    //f = clamp(f * 4 ,0,1);
+    vec3 colorNoise = mix(color1,color2,4*f);
+    //colorNoise = vec3(f,f,f);
+    if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
+    {
+        colorNoise = vec3(0.5, 0.3, 0.3);
+    }
+    else
+    {
+        colorNoise = vec3(0.5,0.8,1);
+    }
+    return colorNoise;
+}
+
 void main()
 {
     //Noise com 6 oitavas
@@ -299,6 +334,7 @@ void main()
 
     if(isPBR == 1)
     {
+        //PBR normal sem nada
         if(option == 0)
         {
             vec3 albedo = texture(Albedo,UV).rgb;
@@ -351,6 +387,7 @@ void main()
         }
         else if (option == 1)
         {
+            //PBR com "sujeira" e aspecto de ouro
             skyColor = vec3(0.7038, 0.27048, 0.0828);
             cloudColor = vec3(0.19125, 0.0735, 0.0225);
             colorNoise = mix(skyColor,cloudColor,f);
@@ -405,6 +442,7 @@ void main()
         }
         else if (option == 2)
         {
+            //PBR com noise em Roughness dando um aspecto de metal mais gasto
             vec3 albedo = texture(Albedo,UV).rgb /*colorNoise*/;
             float metallic = texture(Metallic,UV).r;
             float roughness = /*texture(Roughness,UV).r*/ colorNoise.r;
@@ -455,10 +493,12 @@ void main()
         }
         else if (option == 3)
         {
+            //PBR com Bump
             mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
             mat3 inverseTBN = inverse(TBN);
             vec3 tangPos = TBN * worldPos;
 
+            //Sem Bump Nenhum
             if(bumpType == 4)
             {
                 //vec3 colorNoise;
@@ -481,6 +521,7 @@ void main()
             }
             else
             {
+                //Com Bump
                 vec3 normal = calculateNormal(bumpType);
 
                 vec4 ambient = material.ambient;
@@ -501,6 +542,8 @@ void main()
                 finalColor = diffuse + ambient + specular;
 
                 finalColor = vec4((vec3(ambient) + vec3(diffuse)) * vec3(0.5,0.8,1)+ vec3(specular),1);
+
+                //Bump com cor
                 if(bumpType == 5)
                 {
                     //Noise com 6 oitavas
@@ -512,7 +555,8 @@ void main()
                     //colorNoise = vec3(f,f,f);
                     if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
                     {
-                        colorNoise = vec3(0.5, 0.3, 0.3);
+//                        colorNoise = vec3(0.5, 0.3, 0.3);
+                        colorNoise = vec3(0.6, 0.5, 0.5);
                     }
                     else
                     {
@@ -648,8 +692,8 @@ void main()
                   //colorNoise = vec3(f,f,f);
                   if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
                   {
-                      colorNoise = vec3(0.5, 0.3, 0.3);
-                      color = colorNoise * ambient + colorNoise *Lo;
+                      colorNoise = vec3(0.3, 0.2, 0.1);
+                      color = colorNoise;
                       color = color / (color + vec3(1.0));
                       color = pow(color, vec3(1.0/2.2));;
                       finalColor = vec4(color, 1.0);

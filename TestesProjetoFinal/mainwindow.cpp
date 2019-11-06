@@ -165,6 +165,11 @@ void MainWindow::on_BumpWithColorradioButton_clicked()
     ui->openGLWidget->setBumpType(5);
 }
 
+void MainWindow::on_BumpMarbleradioButton_clicked()
+{
+    ui->openGLWidget->setBumpType(7);
+}
+
 void MainWindow::on_CloudRoughnessNoiseRadioButton_clicked()
 {
     ui->openGLWidget->setOption(Options::CLOUDSROUGH);
