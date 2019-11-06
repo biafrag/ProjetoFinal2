@@ -72,6 +72,8 @@ private slots:
 
     void on_BumpMarbleradioButton_clicked();
 
+    void on_MarbleCheckBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 };

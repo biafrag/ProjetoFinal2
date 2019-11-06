@@ -1,4 +1,5 @@
 #version 410 core
+
 const float PI = 3.14159265359;
 
 struct Material //Propriedades do material
@@ -24,6 +25,7 @@ uniform Material material;
 uniform vec3 light; //Posição da luz no espaço tangente
 uniform int isPBR; //Variavel indicando se estamos usando PBR
 uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com noise
+uniform int isMarble;
 uniform int option; //Variável indicando qual o tipo de PBR, (sem noise, com noise no albedo etc)
 uniform mat4 normalMatrix; //Inversa transposta da MV
 uniform int bumpType;
@@ -47,11 +49,6 @@ uniform sampler2D Albedo;
 uniform sampler2D Metallic;
 uniform sampler2D Ao;
 uniform sampler2D Roughness;
-
-vec3 expand(vec3 v)
-{
-   return (v - 0.5) * 2;
-}
 
 //Função que calcula a inversa de uma matriz m
 mat3 inverse(mat3 m) {
@@ -115,6 +112,22 @@ float calculateNoise1(vec3 pos)
     return z;
 }
 
+
+float turbulence(vec3 pos)
+{
+    float z = 0;
+    float frequency = 4;
+    float persistency = 0.5;
+    int numOctaves = 4;
+    for(int i = 0; i < numOctaves;i++)
+    {
+        z += abs(noise(frequency * pos)) * persistency;
+        frequency *= 2;
+        persistency /= 2;
+    }
+    return z;
+}
+
 float calculateNoise2(vec3 pos)
 {
     float z = 0;
@@ -141,18 +154,24 @@ float calculateNoise4(vec3 pos)
     z = min(0.1,oct3 + oct4*2.4) + oct4/3;
     return z;
 }
-
 float calculateNoiseMarble(vec3 pos)
 {
-    float z = 0;
-    float xPeriod = 5.0; //defines repetition of marble lines in x direction
-    float yPeriod = 10.0; //defines repetition of marble lines in y direction
-    float turbPower = 5.0; //makes twists
-    float turbSize = 32.0; //initial size of the turbulence
-    float xyValue = pos.x * xPeriod / pos.y * yPeriod /turbPower * calculateNoise1(pos) / 256.0;
-    float sineValue = 256 * abs(sin(xyValue * 3.14159));
-    z = sineValue;
-    return z;
+    float oct1 =  noise(1*pos)*0.5;
+    float oct2 = noise(2*pos)*0.25;
+    float oct3 = noise(4*pos)*0.25/2;
+    float oct4 = noise(8*pos)*0.25/4;
+
+    float intensity = abs(oct1) + abs(oct2) + abs(oct3) + abs(oct4);
+
+    float sineval = sin(pos.y * 24.0 + intensity * 48.0) * 0.5 + 0.5;
+    return sineval;
+
+}
+vec3 calculateMarbleColor(vec3 pos)
+{
+    float f = calculateNoiseMarble(pos);
+    vec3 color = mix(vec3(0.4,0.4,0.4), vec3(0.8,0.8,0.8), f);
+    return color;
 }
 
 float calculateNoiseTeste(vec3 pos)
@@ -304,30 +323,10 @@ vec3 calculateNormal(int type)
     return normal;
 }
 
-vec3 calculateColorImperfections()
-{
-    //Noise com 6 oitavas
-    float f = calculateNoiseTeste(worldPos);
-    vec3 color1 = vec3(1,1,1);
-    vec3 color2 = vec3(0, 0, 1);
-    //f = clamp(f * 4 ,0,1);
-    vec3 colorNoise = mix(color1,color2,4*f);
-    //colorNoise = vec3(f,f,f);
-    if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
-    {
-        colorNoise = vec3(0.5, 0.3, 0.3);
-    }
-    else
-    {
-        colorNoise = vec3(0.5,0.8,1);
-    }
-    return colorNoise;
-}
-
 void main()
 {
     //Noise com 6 oitavas
-    float f = (noise(4*worldPos)*0.5 + noise(8*worldPos)*0.25 + noise(16*worldPos)*0.125 + noise(32*worldPos)*0.0625 + noise(64*worldPos)*0.03125 + noise(128*worldPos)*0.015625);
+    float f = turbulence(worldPos);
     vec3 skyColor = vec3(1, 1, 1);
     vec3 cloudColor = vec3(0.19125, 0.0735, 0.0225);
     vec3 colorNoise = mix(skyColor,cloudColor,f);
@@ -385,9 +384,9 @@ void main()
 
               finalColor = vec4(color, 1.0);
         }
+        //PBR com "sujeira" e aspecto de ouro
         else if (option == 1)
         {
-            //PBR com "sujeira" e aspecto de ouro
             skyColor = vec3(0.7038, 0.27048, 0.0828);
             cloudColor = vec3(0.19125, 0.0735, 0.0225);
             colorNoise = mix(skyColor,cloudColor,f);
@@ -440,12 +439,12 @@ void main()
 
               finalColor = vec4(color, 1.0);
         }
+        //PBR com noise em Roughness dando um aspecto de metal mais gasto
         else if (option == 2)
         {
-            //PBR com noise em Roughness dando um aspecto de metal mais gasto
-            vec3 albedo = texture(Albedo,UV).rgb /*colorNoise*/;
+            vec3 albedo = texture(Albedo,UV).rgb;
             float metallic = texture(Metallic,UV).r;
-            float roughness = /*texture(Roughness,UV).r*/ colorNoise.r;
+            float roughness = colorNoise.r;
             float ao = texture(Ao,UV).r;
 
             vec3 N = normalize(fragNormal);
@@ -491,9 +490,9 @@ void main()
 
               finalColor = vec4(color, 1.0);
         }
+        //Phong com Bump
         else if (option == 3)
         {
-            //PBR com Bump
             mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
             mat3 inverseTBN = inverse(TBN);
             vec3 tangPos = TBN * worldPos;
@@ -550,12 +549,9 @@ void main()
                     f = calculateNoise4(worldPos);
                     skyColor = vec3(1,1,1);
                     cloudColor = vec3(0, 0, 1);
-                    //f = clamp(f * 4 ,0,1);
                     colorNoise = mix(skyColor,cloudColor,4*f);
-                    //colorNoise = vec3(f,f,f);
                     if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
                     {
-//                        colorNoise = vec3(0.5, 0.3, 0.3);
                         colorNoise = vec3(0.6, 0.5, 0.5);
                     }
                     else
@@ -569,6 +565,7 @@ void main()
             }
 
         }
+        //PBR noise em Albedo dando um aspecto de metal mais gasto
         else if (option == 4)
         {
             vec3 albedo = colorNoise;
@@ -619,87 +616,142 @@ void main()
 
               finalColor = vec4(color, 1.0);
         }
+        //PBR com Bump
         else if (option == 5)
         {
             mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
             mat3 inverseTBN = inverse(TBN);
             vec3 tangPos = TBN * worldPos;
-            vec3 normal = calculateNormal(bumpType);
+            //Sem Bump Nenhum
+            if(bumpType == 4)
+            {
+                vec3 albedo = texture(Albedo,UV).rgb;
+                float metallic = texture(Metallic,UV).r;
+                float roughness = colorNoise.r;
+                float ao = texture(Ao,UV).r;
 
-            vec3 albedo = texture(Albedo,UV).rgb;
-            float metallic = texture(Metallic,UV).r;
-            float roughness = /*texture(Roughness,UV).r*/ colorNoise.r;
-            //Noise com 6 oitavas
-            f = calculateNoise4(worldPos);
-            skyColor = vec3(1,1,1);
-            cloudColor = vec3(0, 0, 1);
-            //f = clamp(f * 4 ,0,1);
-            colorNoise = mix(skyColor,cloudColor,4*f);
-            //colorNoise = vec3(f,f,f);
-            float ao = texture(Ao,UV).r;
+                vec3 N = normalize(fragNormal);
+                vec3 V = normalize(-fragPos);
+                vec3 F0 = vec3(0.04);
+                F0 = mix(F0, albedo, metallic);
 
-            vec3 N = inverseTBN * normal;
-            vec3 V = normalize(-fragPos);
-            vec3 F0 = vec3(0.04);
-            F0 = mix(F0, albedo, metallic);
-
-              // reflectance equation
-              vec3 Lo = vec3(0.0);
-              vec3 specular;
-              for(int i = 0; i < 4; i++)
-              {
-                  // calculate per-light radiance
-                  vec3 L = normalize(lights[i].Position - fragPos);
-                  vec3 H = normalize(V + L);
-                  float distance   = length(lights[i].Position - fragPos);
-                  float attenuation = 1.0 / (distance * distance);
-                  vec3 radiance = vec3(1,1,1) * attenuation;
-
-                  // cook-torrance brdf
-                  float NDF = DistributionGGX(N, H, roughness);
-                  float G   = GeometrySmith(N, V, L, roughness);
-                  vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-                  vec3 kS = F;
-                  vec3 kD = vec3(1.0) - kS;
-                  kD *= 1.0 - metallic;
-
-                  vec3 numerator    = NDF * G * F;
-                  float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-                  specular     = numerator / max(denominator, 0.001);
-
-                  // add to outgoing radiance Lo
-                  float NdotL = max(dot(N, L), 0.0);
-                  Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-
-
-              }
-              vec3 ambient = vec3(0.05) * albedo * ao;
-              vec3 color = ambient + Lo;
-              color = color / (color + vec3(1.0));
-              color = pow(color, vec3(1.0/2.2));;
-
-              finalColor = vec4(color, 1.0);
-
-              if(bumpType == 5)
-              {
-                  //Noise com 6 oitavas
-                  f = calculateNoise4(worldPos);
-                  skyColor = vec3(1,1,1);
-                  cloudColor = vec3(0, 0, 1);
-                  //f = clamp(f * 4 ,0,1);
-                  colorNoise = mix(skyColor,cloudColor,4*f);
-                  //colorNoise = vec3(f,f,f);
-                  if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
+                  // reflectance equation
+                  vec3 Lo = vec3(0.0);
+                  vec3 specular;
+                  for(int i = 0; i < 4; i++)
                   {
-                      colorNoise = vec3(0.3, 0.2, 0.1);
-                      color = colorNoise;
-                      color = color / (color + vec3(1.0));
-                      color = pow(color, vec3(1.0/2.2));;
-                      finalColor = vec4(color, 1.0);
+                      // calculate per-light radiance
+                      vec3 L = normalize(lights[i].Position - fragPos);
+                      vec3 H = normalize(V + L);
+                      float distance   = length(lights[i].Position - fragPos);
+                      float attenuation = 1.0 / (distance * distance);
+                      vec3 radiance = vec3(1,1,1) * attenuation;
+
+                      // cook-torrance brdf
+                      float NDF = DistributionGGX(N, H, roughness);
+                      float G   = GeometrySmith(N, V, L, roughness);
+                      vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+                      vec3 kS = F;
+                      vec3 kD = vec3(1.0) - kS;
+                      kD *= 1.0 - metallic;
+
+                      vec3 numerator    = NDF * G * F;
+                      float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+                      specular     = numerator / max(denominator, 0.001);
+
+                      // add to outgoing radiance Lo
+                      float NdotL = max(dot(N, L), 0.0);
+                      Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+
+
+                  }
+                  vec3 ambient = vec3(0.05) * albedo * ao;
+                  vec3 color = ambient + Lo;
+                  color = color / (color + vec3(1.0));
+                  color = pow(color, vec3(1.0/2.2));;
+
+                  finalColor = vec4(color, 1.0);
+            }
+            else
+            {
+                vec3 normal = calculateNormal(bumpType);
+
+                vec3 albedo = texture(Albedo,UV).rgb;
+                float metallic = texture(Metallic,UV).r;
+                float roughness = colorNoise.r;
+
+                f = calculateNoise4(worldPos);
+                skyColor = vec3(1,1,1);
+                cloudColor = vec3(0, 0, 1);
+                //f = clamp(f * 4 ,0,1);
+                colorNoise = mix(skyColor,cloudColor,4*f);
+                //colorNoise = vec3(f,f,f);
+                float ao = texture(Ao,UV).r;
+
+                vec3 N = inverseTBN * normal;
+                vec3 V = normalize(-fragPos);
+                vec3 F0 = vec3(0.04);
+                F0 = mix(F0, albedo, metallic);
+
+                  // reflectance equation
+                  vec3 Lo = vec3(0.0);
+                  vec3 specular;
+                  for(int i = 0; i < 4; i++)
+                  {
+                      // calculate per-light radiance
+                      vec3 L = normalize(lights[i].Position - fragPos);
+                      vec3 H = normalize(V + L);
+                      float distance   = length(lights[i].Position - fragPos);
+                      float attenuation = 1.0 / (distance * distance);
+                      vec3 radiance = vec3(1,1,1) * attenuation;
+
+                      // cook-torrance brdf
+                      float NDF = DistributionGGX(N, H, roughness);
+                      float G   = GeometrySmith(N, V, L, roughness);
+                      vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+                      vec3 kS = F;
+                      vec3 kD = vec3(1.0) - kS;
+                      kD *= 1.0 - metallic;
+
+                      vec3 numerator    = NDF * G * F;
+                      float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+                      specular     = numerator / max(denominator, 0.001);
+
+                      // add to outgoing radiance Lo
+                      float NdotL = max(dot(N, L), 0.0);
+                      Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+
+
+                  }
+                  vec3 ambient = vec3(0.05) * albedo * ao;
+                  vec3 color = ambient + Lo;
+                  color = color / (color + vec3(1.0));
+                  color = pow(color, vec3(1.0/2.2));;
+
+                  finalColor = vec4(color, 1.0);
+
+                  //Bump com cor
+                  if(bumpType == 5)
+                  {
+                      //Noise com 6 oitavas
+                      f = calculateNoise4(worldPos);
+                      skyColor = vec3(1,1,1);
+                      cloudColor = vec3(0, 0, 1);
+                      colorNoise = mix(skyColor,cloudColor,4*f);
+                      if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
+                      {
+                          colorNoise = vec3(0.5, 0.2, 0.1);
+                          color = colorNoise;
+                          color = color / (color + vec3(1.0));
+                          color = pow(color, vec3(1.0/2.2));;
+                          finalColor = vec4(color, 1.0);
+                      }
+
                   }
 
-              }
+            }
         }
     }
     else
@@ -720,11 +772,17 @@ void main()
         float iSpec = pow(max(dot(V,r),0.0), material.shininess);
         specular = iSpec * material.specular;
 
-        finalColor = vec4(vec3(ambient)/**vec3(0.6,0.8,1)*/ + vec3(diffuse)/**vec3(0.9,0.9,1)*/ + vec3(specular),1);
+        finalColor = vec4(vec3(ambient) + vec3(diffuse) + vec3(specular),1);
 
         if(isDirty == 1)
         {
             finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+        }
+        else if (isMarble == 1)
+        {
+            colorNoise = calculateMarbleColor(worldPos);
+            finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+
         }
     }
 }

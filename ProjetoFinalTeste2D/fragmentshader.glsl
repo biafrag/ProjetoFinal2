@@ -98,6 +98,35 @@ float noise3D(vec3 x) {
                    mix( hash1(n + dot(step, vec3(0, 1, 1))), hash1(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
 }
 
+float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+float noise3D2(vec3 p){
+
+    //Geração de numero aleatório
+    vec3 a = floor(p);
+    vec3 d = p - a;
+    d = d * d * (3.0 - 2.0 * d);
+
+    vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 k1 = perm(b.xyxy);
+    vec4 k2 = perm(k1.xyxy + b.zzww);
+
+    vec4 c = k2 + a.zzzz;
+    vec4 k3 = perm(c);
+    vec4 k4 = perm(c + 1.0);
+
+    vec4 o1 = fract(k3 * (1.0 / 41.0));
+    vec4 o2 = fract(k4 * (1.0 / 41.0));
+
+    vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
+    vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
+
+    //Parte da Interpolação Linear Final
+    float i = o4.y * d.y + o4.x * (1.0 - d.y);
+
+    return i;
+}
 
 
 void main()
@@ -144,10 +173,6 @@ void main()
 
 
     }
-    else if (mode == 4 || mode == 5)
-    {
-            finalColor = vec4(0,1,0,1);
-    }
     else
     {
         vec3 colorNoise;
@@ -186,6 +211,22 @@ void main()
             vec3 color1 = vec3(0.8,0.7,0);
             vec3 color2 = vec3(0.6,0.1,0);
             colorNoise = mix(color1,color2,f);
+        }
+        else if (mode == 5)
+        {
+            //Noise com 6 oitavas
+            float f = noise3D(16*worldPos)*0.125;
+            vec3 skyColor = vec3(0.5,0.5,0.7);
+            vec3 cloudColor = vec3(1,1,1);
+            colorNoise = mix(skyColor,cloudColor,f);
+        }
+        else if (mode == 4)
+        {
+            //Noise com 6 oitavas
+            float f = noise3D(8*worldPos)*0.25;
+            vec3 skyColor = vec3(0,0,0);
+            vec3 cloudColor = vec3(1,1,1);
+            colorNoise = mix(skyColor,cloudColor,f);
         }
         finalColor = vec4(ambient*colorNoise + diffuse*colorNoise + specular,1);
     }

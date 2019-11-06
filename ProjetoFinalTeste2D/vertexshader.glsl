@@ -80,7 +80,7 @@ void main()
     }
     else
     {
-        if(mode == 4 || mode == 5)
+        if(mode == 8 || mode == 9)
         {
             if(gl_VertexID % 2 != 0)
             {

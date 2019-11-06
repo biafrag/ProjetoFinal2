@@ -331,7 +331,8 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
 
     _program->setUniformValue("isPBR",  _isPBR);
-     _program->setUniformValue("isDirty",  _isDirty);
+    _program->setUniformValue("isDirty",  _isDirty);
+    _program->setUniformValue("isMarble",  _isMarble);
     _program->setUniformValue("option", (int)_option);
     _program->setUniformValue("bumpType", _bumpType);
     _program->setUniformValue("sizeImperfections", _sizeImperfections);
@@ -423,6 +424,11 @@ void RenderOpengl::setPBR(int isPBR)
 void RenderOpengl::setDirty(int isDirty)
 {
     _isDirty = isDirty;
+}
+
+void RenderOpengl::setMarble(int isMarble)
+{
+    _isMarble = isMarble;
 }
 
 void RenderOpengl::setBumpType(int bumpType)

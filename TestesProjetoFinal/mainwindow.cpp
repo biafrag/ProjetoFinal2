@@ -80,6 +80,7 @@ void MainWindow::on_checkBox_clicked(bool checked)
     {
         ui->openGLWidget->setPBR(1);
         ui->DirtyCheckBox->hide();
+        ui->MarbleCheckBox->hide();
         ui->groupBox_2->show();
     }
     else
@@ -91,6 +92,7 @@ void MainWindow::on_checkBox_clicked(bool checked)
 //        ui->POLSILVERLabel->show();
 //        ui->SILVERLabel->show();
         ui->DirtyCheckBox->show();
+        ui->MarbleCheckBox->show();
         ui->groupBox_2->hide();
     }
 }
@@ -119,8 +121,11 @@ void MainWindow::on_radioButton_3_clicked()
 
 void MainWindow::on_DirtyCheckBox_clicked(bool checked)
 {
+
     if(checked)
     {
+        ui->MarbleCheckBox->setChecked(false);
+        ui->openGLWidget->setMarble(0);
         ui->openGLWidget->setDirty(1);
     }
     else
@@ -235,4 +240,20 @@ void MainWindow::on_BumpTesteradioButton_toggled(bool checked)
 void MainWindow::on_sizeImperfectionsSlider_valueChanged(int value)
 {
     ui->openGLWidget->setSizeImperfections(value);
+}
+
+
+void MainWindow::on_MarbleCheckBox_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->DirtyCheckBox->setChecked(false);
+        ui->openGLWidget->setDirty(0);
+        ui->openGLWidget->setMarble(1);
+    }
+    else
+    {
+        ui->openGLWidget->setMarble(0);
+    }
+
 }

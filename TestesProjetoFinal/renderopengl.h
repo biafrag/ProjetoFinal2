@@ -29,6 +29,7 @@ public:
     void setMaterial(MaterialTypes type);
     void setPBR(int isPBR);
     void setDirty(int isDirty);
+    void setMarble(int isMarble);
     void setBumpType(int bumpType);
     void setOption(Options option);
     void setNumberImperfections(int n);
@@ -117,6 +118,7 @@ private:
     int _bumpType{4};
     int _numberImperfections{0};
     int _sizeImperfections{0};
+    int _isMarble{0};
     Options _option;
 };
 

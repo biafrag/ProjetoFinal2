@@ -15,6 +15,16 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="4">
+     <widget class="QCheckBox" name="DirtyCheckBox">
+      <property name="text">
+       <string>Dirty</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -80,16 +90,6 @@
        </widget>
       </item>
      </layout>
-    </item>
-    <item row="3" column="4">
-     <widget class="QCheckBox" name="DirtyCheckBox">
-      <property name="text">
-       <string>Dirty</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
     </item>
     <item row="2" column="3">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -388,7 +388,7 @@
     <item row="0" column="2">
      <widget class="QCheckBox" name="checkBox">
       <property name="text">
-       <string>PBR</string>
+       <string>Outros</string>
       </property>
      </widget>
     </item>
@@ -405,6 +405,13 @@
         <width>900</width>
         <height>600</height>
        </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="5">
+     <widget class="QCheckBox" name="MarbleCheckBox">
+      <property name="text">
+       <string>Marble</string>
       </property>
      </widget>
     </item>

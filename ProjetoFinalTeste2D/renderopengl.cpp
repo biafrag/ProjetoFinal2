@@ -144,16 +144,6 @@ void RenderOpengl::paintGL()
         //Desenhando os triângulos que formam o cubo
         glDrawArrays(GL_TRIANGLES, 0, (int)_pointsScreen.size());
     }
-    else if (_mode == 4)
-    {
-        //Desenhando os triângulos que formam o cubo
-        glDrawArrays(GL_LINES, 0, (int)_pointsTest.size());
-    }
-    else if (_mode == 5)
-    {
-        //Desenhando os triângulos que formam o cubo
-        glDrawArrays(GL_POINTS, 0, (int)_pointsTest.size());
-    }
     else
     {
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indexPoints.size()), GL_UNSIGNED_INT, nullptr);
