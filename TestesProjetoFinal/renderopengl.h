@@ -92,6 +92,7 @@ private:
     void createPBRTextures(const std::vector<std::string> imagePath);
     void setFile(std::vector<std::string> fileNames);
     void computeTangents();
+    void computePVector();
 
     //Teste Normal Map
     void createNormalTexture(const std::string &imagePath); //Seta textura difusa

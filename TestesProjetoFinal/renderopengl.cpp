@@ -265,7 +265,7 @@ void RenderOpengl::initializeGL()
     //Adicionando shaders ao programa
 
     _program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexshader.glsl");
-    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshaderpbr.glsl");
+    _program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentshaderperlinnoise.glsl");
 
     //Linka shaders que foram adicionados ao programa
     _program->link();
@@ -280,7 +280,6 @@ void RenderOpengl::initializeGL()
     _program->bind();
     createNormalTexture("../MalhasTeste/Texturas/golfball.png");
     createPBRTextures({"../MalhasTeste/Texturas/albedo.png","../MalhasTeste/Texturas/metalness.png","../MalhasTeste/Texturas/roughness.png","../MalhasTeste/Texturas/ao.png"});
-
 }
 
 
@@ -522,11 +521,11 @@ void RenderOpengl::printThings()
 //        printf( "%f %f %f\n",_tangents[i].x(),_tangents[i].y(),_tangents[i].z());
 //    }
 
-    printf("Coordenadas de Textura: \n");
-    for(unsigned int i = 0; i< _texCoords.size(); i ++)
-    {
-        printf( "%f %f \n",_texCoords[i].x(),_texCoords[i].y());
-    }
+//    printf("Coordenadas de Textura: \n");
+//    for(unsigned int i = 0; i< _texCoords.size(); i ++)
+//    {
+//        printf( "%f %f \n",_texCoords[i].x(),_texCoords[i].y());
+//    }
 
 
 //    printf("Indices: \n");

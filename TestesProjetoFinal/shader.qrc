@@ -5,5 +5,6 @@
         <file>fragmentshaderpbr.glsl</file>
         <file>fragmentshadernormalmaptest.glsl</file>
         <file>vertexshadernormalmaptest.glsl</file>
+        <file>fragmentshaderperlinnoise.glsl</file>
     </qresource>
 </RCC>
