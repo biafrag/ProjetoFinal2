@@ -80,18 +80,15 @@ void MainWindow::on_checkBox_clicked(bool checked)
     {
         ui->openGLWidget->setPBR(1);
         ui->DirtyCheckBox->hide();
+        ui->DirtySlider->hide();
         ui->MarbleCheckBox->hide();
         ui->groupBox_2->show();
     }
     else
     {
         ui->openGLWidget->setPBR(0);
-//        ui->verticalSlider->show();
-//        ui->COPPERLabel->show();
-//        ui->GOLDLabel->show();
-//        ui->POLSILVERLabel->show();
-//        ui->SILVERLabel->show();
         ui->DirtyCheckBox->show();
+        ui->DirtySlider->show();
         ui->MarbleCheckBox->show();
         ui->groupBox_2->hide();
     }
@@ -127,10 +124,12 @@ void MainWindow::on_DirtyCheckBox_clicked(bool checked)
         ui->MarbleCheckBox->setChecked(false);
         ui->openGLWidget->setMarble(0);
         ui->openGLWidget->setDirty(1);
+        ui->DirtySlider->show();
     }
     else
     {
         ui->openGLWidget->setDirty(0);
+        ui->DirtySlider->hide();
     }
 }
 
@@ -250,10 +249,34 @@ void MainWindow::on_MarbleCheckBox_clicked(bool checked)
         ui->DirtyCheckBox->setChecked(false);
         ui->openGLWidget->setDirty(0);
         ui->openGLWidget->setMarble(1);
+        ui->DirtySlider->hide();
     }
     else
     {
         ui->openGLWidget->setMarble(0);
     }
 
+}
+
+void MainWindow::on_Bump4radioButton_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->label->show();
+        ui->label_2->show();
+        ui->sizeImperfectionsSlider->show();
+        ui->numerImperfectionsSlider->show();
+    }
+    else
+    {
+        ui->label->hide();
+        ui->label_2->hide();
+        ui->sizeImperfectionsSlider->hide();
+        ui->numerImperfectionsSlider->hide();
+    }
+}
+
+void MainWindow::on_DirtySlider_valueChanged(int value)
+{
+    ui->openGLWidget->setDirtyType(value);
 }

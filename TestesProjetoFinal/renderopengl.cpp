@@ -331,6 +331,7 @@ void RenderOpengl::paintGL()
 
     _program->setUniformValue("isPBR",  _isPBR);
     _program->setUniformValue("isDirty",  _isDirty);
+    _program->setUniformValue("dirtyType",  _dirtyType);
     _program->setUniformValue("isMarble",  _isMarble);
     _program->setUniformValue("option", (int)_option);
     _program->setUniformValue("bumpType", _bumpType);
@@ -448,6 +449,11 @@ void RenderOpengl::setNumberImperfections(int n)
 void RenderOpengl::setSizeImperfections(int n)
 {
     _sizeImperfections = n;
+}
+
+void RenderOpengl::setDirtyType(int dirtyType)
+{
+    _dirtyType = dirtyType;
 }
 
 

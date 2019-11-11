@@ -34,6 +34,7 @@ public:
     void setOption(Options option);
     void setNumberImperfections(int n);
     void setSizeImperfections(int n);
+    void setDirtyType(int dirtyType);
 
 private:
     //Classe do qt que permite os shaders serem linkados e usados
@@ -120,6 +121,7 @@ private:
     int _numberImperfections{0};
     int _sizeImperfections{0};
     int _isMarble{0};
+    int _dirtyType{0};
     Options _option;
 };
 

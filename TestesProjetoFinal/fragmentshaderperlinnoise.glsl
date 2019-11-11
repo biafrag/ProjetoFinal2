@@ -24,6 +24,7 @@ uniform Material material;
 uniform vec3 light; //Posição da luz no espaço tangente
 uniform int isPBR; //Variavel indicando se estamos usando PBR
 uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com noise
+uniform int dirtyType;
 uniform int isMarble;
 uniform int option; //Variável indicando qual o tipo de PBR, (sem noise, com noise no albedo etc)
 uniform mat4 normalMatrix; //Inversa transposta da MV
@@ -224,9 +225,37 @@ float calculateNoise3(vec3 pos)
 float calculateNoise4(vec3 pos)
 {
     float z = 0;
+    float oct1 =  noise(4*pos)*0.5;
+    float oct2 = noise(8*pos)*0.25;
     float oct3 = noise(16*pos)*0.25/2;
     float oct4 = noise(32*pos)*0.25/4;
-    z = min(0.1,oct3 + oct4*2.4) + oct4/3;
+    float oct5 = noise(64*pos)*0.25/8;
+
+    float c;
+    if(sizeImperfections == 0)
+    {
+        c = 0.05;
+    }
+    else if (sizeImperfections == 1)
+    {
+        c = 0.1;
+    }
+    else if (sizeImperfections == 2)
+    {
+        c = 0.2;
+    }
+    else
+    {
+        c = 0.3;
+    }
+
+    float z1 = 6*min(c,oct1) + oct1/4;
+    float z2 = 6*min(c,oct2) + oct2/4;
+    float z3 = 6*min(c,oct3) + oct3/4;
+    float z4 = 6*min(c,oct4) + oct4/4;
+    float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
+
+    z =  min(c,sumOctaves(pos));
     return z;
 }
 float calculateNoiseMarble(vec3 pos)
@@ -282,7 +311,7 @@ float calculateNoiseTeste(vec3 pos)
     float z4 = 6*min(c,oct4) + oct4/4;
     float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
 
-    z =  min(c,sumOctaves(pos));
+    z =  min(c,turbulence(pos));
     return z;
 }
 
@@ -386,8 +415,16 @@ vec3 calculateNormal(int type)
 
 void main()
 {
+    float f;
     //Noise com 6 oitavas
-    float f = turbulence(worldPos);
+    if(dirtyType == 0)
+    {
+        f = turbulence(worldPos);
+    }
+    else
+    {
+        f = sumOctaves(worldPos);
+    }
     vec3 skyColor = vec3(1, 1, 1);
     vec3 cloudColor = vec3(0.19125, 0.0735, 0.0225);
     vec3 colorNoise = mix(skyColor,cloudColor,f);
@@ -609,8 +646,8 @@ void main()
                     //Noise com 6 oitavas
                     f = calculateNoise4(worldPos);
                     skyColor = vec3(1,1,1);
-                    cloudColor = vec3(0, 0, 1);
-                    colorNoise = mix(skyColor,cloudColor,4*f);
+                    cloudColor = vec3(0, 0, 0);
+                    colorNoise = mix(skyColor,cloudColor,6*f);
                     if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
                     {
                         colorNoise = vec3(0.6, 0.5, 0.5);
@@ -619,7 +656,7 @@ void main()
                     {
                         colorNoise = vec3(0.5,0.8,1);
                     }
-
+                    //colorNoise = vec3(0.6, 0.5, 0.5);
                     finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
 
                 }

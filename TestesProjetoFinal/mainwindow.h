@@ -74,6 +74,10 @@ private slots:
 
     void on_MarbleCheckBox_clicked(bool checked);
 
+    void on_Bump4radioButton_toggled(bool checked);
+
+    void on_DirtySlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
 };
