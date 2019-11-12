@@ -78,6 +78,8 @@ private slots:
 
     void on_DirtySlider_valueChanged(int value);
 
+    void on_actionSave_image_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -258,7 +258,7 @@ float calculateNoise4(vec3 pos)
     z =  min(c,sumOctaves(pos));
     return z;
 }
-float calculateNoiseMarble(vec3 pos)
+float calculateMarble(vec3 pos)
 {
     float oct1 =  noise(2*pos)*0.5;
     float oct2 = noise(4*pos)*0.25;
@@ -271,9 +271,47 @@ float calculateNoiseMarble(vec3 pos)
     return sineval;
 
 }
+
+float calculateNoiseMarble(vec3 pos)
+{
+    float z = 0;
+    float oct1 =  noise(4*pos)*0.5;
+    float oct2 = noise(8*pos)*0.25;
+    float oct3 = noise(16*pos)*0.25/2;
+    float oct4 = noise(32*pos)*0.25/4;
+    float oct5 = noise(64*pos)*0.25/8;
+
+    float c;
+    if(sizeImperfections == 0)
+    {
+        c = 0.05;
+    }
+    else if (sizeImperfections == 1)
+    {
+        c = 0.1;
+    }
+    else if (sizeImperfections == 2)
+    {
+        c = 0.2;
+    }
+    else
+    {
+        c = 0.3;
+    }
+
+    float z1 = 6*min(c,oct1) + oct1/4;
+    float z2 = 6*min(c,oct2) + oct2/4;
+    float z3 = 6*min(c,oct3) + oct3/4;
+    float z4 = 6*min(c,oct4) + oct4/4;
+    float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
+
+    z =  min(c,calculateMarble(pos));
+    return z;
+
+}
 vec3 calculateMarbleColor(vec3 pos)
 {
-    float f = calculateNoiseMarble(pos);
+    float f = calculateMarble(pos);
     vec3 color = mix(vec3(0.4,0.4,0.4), vec3(0.8,0.8,0.8), f);
     return color;
 }
@@ -384,6 +422,13 @@ vec3 calculateNormal(int type)
         up.z = calculateNoise3(worldPos + dFdy(worldPos));
         down.z = calculateNoise3(worldPos - dFdy(worldPos));
      }
+    else if (type == 3)
+    {
+        left.z = calculateNoise4(worldPos - dFdx(worldPos));
+        right.z = calculateNoise4(worldPos + dFdx(worldPos));
+        up.z = calculateNoise4(worldPos + dFdy(worldPos));
+        down.z = calculateNoise4(worldPos - dFdy(worldPos));
+    }
     else if (type == 6)
     {
         left.z = calculateNoiseTeste(worldPos - dFdx(worldPos));
@@ -400,10 +445,20 @@ vec3 calculateNormal(int type)
     }
     else
     {
-        left.z = calculateNoise4(worldPos - dFdx(worldPos));
-        right.z = calculateNoise4(worldPos + dFdx(worldPos));
-        up.z = calculateNoise4(worldPos + dFdy(worldPos));
-        down.z = calculateNoise4(worldPos - dFdy(worldPos));
+        if(dirtyType == 0)
+        {
+            left.z = calculateNoiseTeste(worldPos - dFdx(worldPos));
+            right.z = calculateNoiseTeste(worldPos + dFdx(worldPos));
+            up.z = calculateNoiseTeste(worldPos + dFdy(worldPos));
+            down.z = calculateNoiseTeste(worldPos - dFdy(worldPos));
+        }
+        else
+        {
+            left.z = calculateNoise4(worldPos - dFdx(worldPos));
+            right.z = calculateNoise4(worldPos + dFdx(worldPos));
+            up.z = calculateNoise4(worldPos + dFdy(worldPos));
+            down.z = calculateNoise4(worldPos - dFdy(worldPos));
+        }
      }
 
     vec3 v1 = normalize(right - left);
@@ -643,20 +698,31 @@ void main()
                 //Bump com cor
                 if(bumpType == 5)
                 {
-                    //Noise com 6 oitavas
-                    f = calculateNoise4(worldPos);
-                    skyColor = vec3(1,1,1);
-                    cloudColor = vec3(0, 0, 0);
-                    colorNoise = mix(skyColor,cloudColor,6*f);
-                    if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
-                    {
-                        colorNoise = vec3(0.6, 0.5, 0.5);
-                    }
-                    else
-                    {
-                        colorNoise = vec3(0.5,0.8,1);
-                    }
+//                    //Noise com 6 oitavas
+//                    f = calculateNoise4(worldPos);
+//                    skyColor = vec3(1,1,1);
+//                    cloudColor = vec3(0, 0, 0);
+//                    colorNoise = mix(skyColor,cloudColor,6*f);
+//                    if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
+//                    {
+//                        colorNoise = vec3(0.6, 0.5, 0.5);
+//                    }
+//                    else
+//                    {
+//                        colorNoise = vec3(0.5,0.8,1);
+//                    }
                     //colorNoise = vec3(0.6, 0.5, 0.5);
+                    vec3 color1 = vec3(1, 1, 1);
+//                    vec3 color2 = vec3(0.19125, 0.0735, 0.0225);
+                    vec3 color2 = vec3(0.5, 0.3, 0.2);
+//                    vec3 color2 = vec3(0.93, 0.68, 0.018);
+                    vec3 color3 =  vec3(0.93, 0.68, 0.018);
+//                    vec3 color4 = vec3(1,1,1);
+                    float g = turbulence(worldPos);
+                    color3 = mix(color3,color1,g);
+//                    color2 = mix(color2,color3,f);
+                    //f = calculateNoise4(worldPos);
+                    colorNoise = mix(color2,color1,f) ;
                     finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
 
                 }
@@ -833,20 +899,16 @@ void main()
                   //Bump com cor
                   if(bumpType == 5)
                   {
-                      //Noise com 6 oitavas
-                      f = calculateNoise4(worldPos);
-                      skyColor = vec3(1,1,1);
-                      cloudColor = vec3(0, 0, 1);
-                      colorNoise = mix(skyColor,cloudColor,4*f);
-                      if(colorNoise.x > 0.6 && colorNoise.y > 0.6 && colorNoise.z > 0.6)
-                      {
-                          colorNoise = vec3(0.5, 0.2, 0.1);
-                          colorNoise = vec3(0.9,0.7,0.7);
-                          color = ambient + Lo;
-                          color = color / (color + vec3(1.0));
-                          color = pow(color, vec3(1.0/2.2));;
-                          finalColor = vec4(color*colorNoise, 1.0);
-                      }
+                    skyColor = vec3(1, 1, 1);
+                    cloudColor = vec3(0.7, 0.5, 0.3);
+                    colorNoise = mix(cloudColor,skyColor,f);
+                    if(colorNoise.x < 0.9 && colorNoise.y < 0.7 && colorNoise.z < 0.5)
+                    {
+                      color = ambient + Lo;
+                      color = color / (color + vec3(1.0));
+                      color = pow(color, vec3(1.0/2.2));;
+                      finalColor = vec4(color*colorNoise, 1.0);
+                    }
 
                   }
 

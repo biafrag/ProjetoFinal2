@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QFileDialog>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -279,4 +280,17 @@ void MainWindow::on_Bump4radioButton_toggled(bool checked)
 void MainWindow::on_DirtySlider_valueChanged(int value)
 {
     ui->openGLWidget->setDirtyType(value);
+}
+
+void MainWindow::on_actionSave_image_triggered()
+{
+        QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Salvar imagem"), "", tr("Arquivos de imagem (*.png *.jpg *.bmp *.tiff)"));
+
+        if (!fileName.isEmpty() )
+        {
+            QImage qImage = ui->openGLWidget->grabFramebuffer();
+            qImage.save(fileName);
+
+        }
 }

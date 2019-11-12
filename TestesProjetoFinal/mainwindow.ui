@@ -458,6 +458,13 @@
      <height>0</height>
     </size>
    </property>
+   <widget class="QMenu" name="menuFike">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSave_image"/>
+   </widget>
+   <addaction name="menuFike"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -468,6 +475,11 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSave_image">
+   <property name="text">
+    <string>Save image</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
