@@ -92,9 +92,9 @@ private:
    std::vector<QVector3D> _normals; //Vetor de normais
    std::vector<QVector3D> _tangents; //Vetor de tangentes
    std::vector<QVector2D> _texCoords; //Vetor de coordenadas de textura
-   std::vector<int> _indexPoints; //vetor com os indices que formam os triângulos que serão renderizados
-   std::vector<int> _indexNormals; //vetor com os indices de normais
-   std::vector<int> _indexTex; //vetor com os indices de coordenadas textura
+   std::vector<unsigned int> _indexPoints; //vetor com os indices que formam os triângulos que serão renderizados
+   std::vector<unsigned int> _indexNormals; //vetor com os indices de normais
+   std::vector<unsigned int> _indexTex; //vetor com os indices de coordenadas textura
 
    //Pontos de min e max
    QVector3D _maxMeshPoint; //Maior x e y da malha
@@ -151,16 +151,14 @@ private:
 
     //Funções que organizam malha
     void setFile(std::vector<std::string> fileNames); //Define qual será a malha mostrada e lê arquivo
-    void quadToTriangleMesh(std::vector<int> &indexPointsQuad, std::vector<int> &indexPointsTriangle, std::vector<int> &indexNormalsTriangles, std::vector<int> &indexTexTriangles, std::vector<int> &indexNormalsQuad, std::vector<int> &indexTexQuad); //Transforma malha de quads em malha de triângulos
+    void quadToTriangleMesh(std::vector<unsigned int> &indexPointsQuad, std::vector<unsigned int> &indexPointsTriangle, std::vector<unsigned int> &indexNormalsTriangles, std::vector<unsigned int> &indexTexTriangles, std::vector<unsigned int> &indexNormalsQuad, std::vector<unsigned int> &indexTexQuad); //Transforma malha de quads em malha de triângulos
     void organizingData(); // Duplica vértices que precisam ser duplicados (Que possuem índices diferentes do de pontos)
     void getMinMaxMesh(); //Descobre coordenadas de min e max da malha
     void computeTangents(); // Calcula tangentes das malhas
     void createPBRTextures(const std::vector<std::string> imagePath); // Cria, define e seta texturas usadas no PBR
 
     //Teste Normal Map
-    void createNormalTexture(const std::string &imagePath); //Seta textura difusa
     void setMaterialProperties();
-    void createTexture(const std::string &imagePath); //Seta textura difusa
     void printThings();
 
 };
