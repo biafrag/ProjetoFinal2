@@ -599,7 +599,6 @@ void RenderOpengl::createPBRTextures(const std::vector<std::string> imagePath)
 
     //Abrir arquivo de imagem com o Qt
     QImage texImage = QGLWidget::convertToGLFormat(QImage(imagePath[0].c_str()));
-    //QImage texImage(imagePath.c_str());
 
     //Enviar a imagem para o OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
@@ -621,7 +620,6 @@ void RenderOpengl::createPBRTextures(const std::vector<std::string> imagePath)
 
     //Abrir arquivo de imagem com o Qt
     texImage = QGLWidget::convertToGLFormat(QImage(imagePath[1].c_str()));
-    //QImage texImage(imagePath.c_str());
 
     //Enviar a imagem para o OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
@@ -643,7 +641,6 @@ void RenderOpengl::createPBRTextures(const std::vector<std::string> imagePath)
 
     //Abrir arquivo de imagem com o Qt
     texImage = QGLWidget::convertToGLFormat(QImage(imagePath[2].c_str()));
-    //QImage texImage(imagePath.c_str());
 
     //Enviar a imagem para o OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,
@@ -665,7 +662,6 @@ void RenderOpengl::createPBRTextures(const std::vector<std::string> imagePath)
 
     //Abrir arquivo de imagem com o Qt
     texImage = QGLWidget::convertToGLFormat(QImage(imagePath[3].c_str()));
-    //QImage texImage(imagePath.c_str());
 
     //Enviar a imagem para o OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,

@@ -196,14 +196,11 @@ float sumOctaves(vec3 pos)
 //Função de Mármore
 float calculateMarble(vec3 pos)
 {
-    float oct1 =  noise(2*pos)*0.5;
-    float oct2 = noise(4*pos)*0.25;
-    float oct3 = noise(8*pos)*0.25/2;
-    float oct4 = noise(16*pos)*0.25/4;
 
-    float intensity = abs(oct1) + abs(oct2) + abs(oct3) + abs(oct4);
+    float intensity = turbulence(pos);
 
-    float sineval = sin(pos.y * 24.0 + intensity * 48.0) * 0.5 + 0.5;
+    //Função boa que concentra imperfeições nas extremidades
+    float sineval = sin(pos.y  + intensity * 2.0) * 0.5 + 0.5;
     return sineval;
 
 }
@@ -287,11 +284,6 @@ float calculateNoiseTeste(vec3 pos)
 float calculateNoiseMarble(vec3 pos)
 {
     float z = 0;
-    float oct1 =  noise(4*pos)*0.5;
-    float oct2 = noise(8*pos)*0.25;
-    float oct3 = noise(16*pos)*0.25/2;
-    float oct4 = noise(32*pos)*0.25/4;
-    float oct5 = noise(64*pos)*0.25/8;
 
     float c;
     if(sizeImperfections == 0)
@@ -310,12 +302,6 @@ float calculateNoiseMarble(vec3 pos)
     {
         c = 0.3;
     }
-
-    float z1 = 6*min(c,oct1) + oct1/4;
-    float z2 = 6*min(c,oct2) + oct2/4;
-    float z3 = 6*min(c,oct3) + oct3/4;
-    float z4 = 6*min(c,oct4) + oct4/4;
-    float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
 
     z =  min(c,calculateMarble(pos));
     return z;
@@ -601,10 +587,18 @@ void main()
                 //Bump com cor
                 if(bumpType == 5)
                 {
-                    vec3 color1 = vec3(1, 1, 1);
-                    vec3 color2 = vec3(0.5, 0.3, 0.2);
-                    colorNoise = mix(color2,color1,f) ;
-                    finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+                     vec3 color1 = vec3(1, 1, 1);
+                     vec3 color2 = vec3(0.19125, 0.0735, 0.0225);
+                     colorNoise = mix(color2,color1,f);
+
+                     if(colorNoise.x < 0.3 + sizeImperfections*0.1 && colorNoise.y < 0.1 + sizeImperfections*0.1 && colorNoise.z < 0.05 + sizeImperfections*0.1)
+                     {
+                         finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
+                     }
+                     else
+                     {
+                          finalColor = vec4(vec3(ambient)*vec3(1,0.8,0) + vec3(diffuse)*vec3(1,0.8,0) + vec3(specular),1);
+                     }
 
                 }
             }
@@ -656,7 +650,7 @@ void main()
                     objectColor = vec3(1, 1, 1);
                     dirtColor = vec3(0.7, 0.5, 0.3);
                     colorNoise = mix(dirtColor,objectColor,f);
-                    if(colorNoise.x < 0.9 && colorNoise.y < 0.7 && colorNoise.z < 0.5)
+                    if(colorNoise.x < 0.7 + sizeImperfections*0.075 && colorNoise.y < 0.5 + sizeImperfections*0.075 && colorNoise.z < 0.3 + sizeImperfections*0.075)
                     {
                       finalColor = vec4(color*colorNoise, 1.0);
                     }

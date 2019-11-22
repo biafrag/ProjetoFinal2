@@ -4,6 +4,7 @@
 #include <fstream>
 #include<string>
 #include <QVector3D>
+#include <QVector2D>
 #include <sstream>
 void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector<QVector3D>& normals, std::vector<QVector2D>& texCoords, std::vector<unsigned int>& indexPointsTriangles,std::vector<unsigned int>& indexPointsQuads, std::vector<unsigned int>& indexNormalsTriangles, std::vector<unsigned int>& indexTexTriangles, std::vector<unsigned int>& indexNormalsQuads,std::vector<unsigned int>& indexTexQuads)
 {
@@ -63,11 +64,11 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
       {
           std::string s;
           std::string aux;
-          std::vector<int> v;
+          std::vector<unsigned int> v;
           v.resize(12);
           std::string auxtype ;
           myfile >> auxtype;
-          int cont = 0;
+          unsigned int cont = 0;
           while(auxtype != "f" && auxtype != "v" && auxtype != "vn" && auxtype != "vt")
           {
               if(myfile.eof())
@@ -77,7 +78,7 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
               std::istringstream f(auxtype);
               while (getline(f, s, '/'))
               {
-                      v[cont] = std::atoi(s.c_str());
+                      v[cont] = static_cast<unsigned int>(std::atoi(s.c_str()));
                       cont++;
               }
               myfile >> auxtype;
@@ -85,7 +86,7 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
           type = auxtype;
           if(cont == 12)
           {
-              for(int i = 0; i < 4 ; i++)
+              for(unsigned int i = 0; i < 4 ; i++)
               {
                   indexPointsQuads.push_back(v[3*i] - 1);
                   if(v[3*i + 1] == 0)
@@ -101,7 +102,7 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
           }
           else
           {
-              for(int i = 0; i < 3 ; i++)
+              for(unsigned int i = 0; i < 3 ; i++)
               {
                   indexPointsTriangles.push_back(v[3*i] - 1);
                   if(v[3*i + 1] == 0)
@@ -115,6 +116,7 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
                   indexNormalsTriangles.push_back(v[3*i + 2] - 1);
               }
           }
+          v.clear();
       }
     }
     myfile.close();
