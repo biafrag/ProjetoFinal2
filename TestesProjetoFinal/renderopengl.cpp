@@ -276,7 +276,6 @@ void RenderOpengl::initializeGL()
     }
 
     setMode(MeshTypes::ESFERA);
-    setMaterial(MaterialTypes::SILVER);
     _program->bind();
     createNormalTexture("../MalhasTeste/Texturas/golfball.png");
     createPBRTextures({"../MalhasTeste/Texturas/albedo.png","../MalhasTeste/Texturas/metalness.png","../MalhasTeste/Texturas/roughness.png","../MalhasTeste/Texturas/ao.png"});
@@ -329,7 +328,7 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("lights[2].Position",  v*QVector3D(1,-1,2));
     _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
 
-    _program->setUniformValue("isPBR",  _isPBR);
+    _program->setUniformValue("isOthers",  _isOthers);
     _program->setUniformValue("isDirty",  _isDirty);
     _program->setUniformValue("dirtyType",  _dirtyType);
     _program->setUniformValue("isMarble",  _isMarble);
@@ -411,14 +410,9 @@ void RenderOpengl::setMode(MeshTypes type)
 
 }
 
-void RenderOpengl::setMaterial(MaterialTypes type)
+void RenderOpengl::setOthers(int isOthers)
 {
-    _materialType = type;
-}
-
-void RenderOpengl::setPBR(int isPBR)
-{
-    _isPBR = isPBR;
+    _isOthers = isOthers;
 }
 
 void RenderOpengl::setDirty(int isDirty)
@@ -669,40 +663,10 @@ QVector3D RenderOpengl::Points_Sphere(QVector3D pointT)
 void RenderOpengl::setMaterialProperties()
 {
     makeCurrent();
-    switch (_materialType) {
-    case MaterialTypes::SILVER:
-        //Silver
-        _program->setUniformValue("material.ambient", QVector4D(0.19225, 0.19225, 0.19225,1));
-        _program->setUniformValue("material.diffuse", QVector4D(0.50754, 0.50754, 0.50754,1));
-        _program->setUniformValue("material.specular", QVector4D(0.508273, 0.508273, 0.508273,1));
-        _program->setUniformValue("material.shininess", 51.2f);
-        break;
-    case MaterialTypes::POLISHEDSILVER:
-        //Polished Silver
-        _program->setUniformValue("material.ambient", QVector4D(0.23125, 0.23125, 0.23125,1 ));
-        _program->setUniformValue("material.diffuse", QVector4D(0.2775, 0.2775, 0.2775,1));
-        _program->setUniformValue("material.specular", QVector4D(0.773911, 0.773911, 0.773911,1 ));
-        _program->setUniformValue("material.shininess", 89.6f);
-        break;
-    case MaterialTypes::GOLD:
-        //Gold
-        _program->setUniformValue("material.ambient", QVector4D(0.24725, 0.1995, 0.0745, 1 ));
-        _program->setUniformValue("material.diffuse", QVector4D(0.75164, 0.60648, 0.22648, 1));
-        _program->setUniformValue("material.specular", QVector4D(0.628281, 0.555802, 0.366065, 1 ));
-        _program->setUniformValue("material.shininess", 51.2f);
-        break;
-    case MaterialTypes::COPPER:
-        //Copper
-        _program->setUniformValue("material.ambient", QVector4D(0.19125, 0.0735, 0.0225, 1 ));
-        _program->setUniformValue("material.diffuse", QVector4D(0.7038, 0.27048, 0.0828, 1));
-        _program->setUniformValue("material.specular", QVector4D(0.256777, 0.137622, 0.086014, 1 ));
-        _program->setUniformValue("material.shininess", 12.8f);
-        break;
-
-    default:
-        break;
-    }
-
+    _program->setUniformValue("material.ambient", QVector4D(0.19225, 0.19225, 0.19225,1));
+    _program->setUniformValue("material.diffuse", QVector4D(0.50754, 0.50754, 0.50754,1));
+    _program->setUniformValue("material.specular", QVector4D(0.508273, 0.508273, 0.508273,1));
+    _program->setUniformValue("material.shininess", 51.2f);
 }
 
 void RenderOpengl::keyPressEvent(QKeyEvent*)

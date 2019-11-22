@@ -35,51 +35,11 @@ void MainWindow::on_ROBObutton_clicked()
      ui->openGLWidget->setMode(MeshTypes::ROBO);
 }
 
-void MainWindow::on_verticalSlider_actionTriggered(int action)
-{
-    switch (action) {
-    case 0:
-        ui->openGLWidget->setMaterial(MaterialTypes::COPPER);
-        break;
-    case 1:
-        ui->openGLWidget->setMaterial(MaterialTypes::GOLD);
-        break;
-    case 2:
-        ui->openGLWidget->setMaterial(MaterialTypes::POLISHEDSILVER);
-        break;
-    case 3:
-        ui->openGLWidget->setMaterial(MaterialTypes::SILVER);
-        break;
-    default:
-        break;
-    }
-}
-
-void MainWindow::on_verticalSlider_valueChanged(int value)
-{
-    switch (value) {
-    case 0:
-        ui->openGLWidget->setMaterial(MaterialTypes::COPPER);
-        break;
-    case 1:
-        ui->openGLWidget->setMaterial(MaterialTypes::GOLD);
-        break;
-    case 2:
-        ui->openGLWidget->setMaterial(MaterialTypes::POLISHEDSILVER);
-        break;
-    case 3:
-        ui->openGLWidget->setMaterial(MaterialTypes::SILVER);
-        break;
-    default:
-        break;
-    }
-}
-
 void MainWindow::on_checkBox_clicked(bool checked)
 {
     if(checked)
     {
-        ui->openGLWidget->setPBR(1);
+        ui->openGLWidget->setOthers(1);
         ui->DirtyCheckBox->hide();
         ui->DirtySlider->hide();
         ui->MarbleCheckBox->hide();
@@ -87,7 +47,7 @@ void MainWindow::on_checkBox_clicked(bool checked)
     }
     else
     {
-        ui->openGLWidget->setPBR(0);
+        ui->openGLWidget->setOthers(0);
         ui->DirtyCheckBox->show();
         ui->DirtySlider->show();
         ui->MarbleCheckBox->show();

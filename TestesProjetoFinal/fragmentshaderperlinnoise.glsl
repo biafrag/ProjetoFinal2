@@ -22,7 +22,7 @@ uniform Material material;
 
 //Variaveis de entrada
 uniform vec3 light; //Posição da luz no espaço tangente
-uniform int isPBR; //Variavel indicando se estamos usando PBR
+uniform int isOthers; //Variavel indicando se estamos usando outra parte da interface que trata de PBR e Bumps
 uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com noise
 uniform int dirtyType;
 uniform int isMarble;
@@ -484,7 +484,7 @@ void main()
     vec3 cloudColor = vec3(0.19125, 0.0735, 0.0225);
     vec3 colorNoise = mix(skyColor,cloudColor,f);
 
-    if(isPBR == 1)
+    if(isOthers == 1)
     {
         //PBR normal sem nada
         if(option == 0)
