@@ -34,7 +34,6 @@ HEADERS += \
     reader.h \
     readeroff.h \
     meshtypes.h \
-    materialtypes.h \
     reader2.h \
     reader3.h
 

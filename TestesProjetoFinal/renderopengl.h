@@ -10,7 +10,6 @@
 
 #include <glm/glm.hpp>
 #include "meshtypes.h"
-#include "materialtypes.h"
 
 class RenderOpengl:
         public QOpenGLWidget
@@ -158,7 +157,6 @@ private:
     void createPBRTextures(const std::vector<std::string> imagePath); // Cria, define e seta texturas usadas no PBR
 
     //Teste Normal Map
-    void setMaterialProperties();
     void printThings();
 
 };

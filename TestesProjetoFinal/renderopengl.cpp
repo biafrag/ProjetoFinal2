@@ -74,6 +74,7 @@ void RenderOpengl::paintGL()
     _vao.bind();
 
     glViewport(0, 0, cam.width, cam.height);
+
     //Definindo matriz view e projection
      _view.setToIdentity();
      _view.lookAt(cam.eye, cam.at, cam.up);
@@ -101,16 +102,23 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("mvp", mvp);
     //inversa transposta da model-view
     _program->setUniformValue("normalMatrix", mv.inverted().transposed());
+
     //Variáveis de material e luz
-    _program->setUniformValue("light",v * cam.eye);
+    _program->setUniformValue("light",v * cam.eye); //Luz do Phong
 
-    _program->setUniformValue("lightPos", v * QVector3D(5,5,5));
+    //Setando propriedades da luz usado no Phong
+    _program->setUniformValue("material.ambient", QVector4D(0.19, 0.19, 0.19,1));
+    _program->setUniformValue("material.diffuse", QVector4D(0.51, 0.51, 0.51,1));
+    _program->setUniformValue("material.specular", QVector4D(0.51, 0.51, 0.51,1));
+    _program->setUniformValue("material.shininess", 51.2f);
 
+    //4 luzes do PBR
     _program->setUniformValue("lights[0].Position", v*QVector3D(1,1,2));
     _program->setUniformValue("lights[1].Position",  v*QVector3D(-1,1,2));
     _program->setUniformValue("lights[2].Position",  v*QVector3D(1,-1,2));
     _program->setUniformValue("lights[3].Position",  v*QVector3D(-1,-1,2));
 
+    //Variáveis para ajustar à interface
     _program->setUniformValue("isOthers",  _isOthers);
     _program->setUniformValue("isDirty",  _isDirty);
     _program->setUniformValue("dirtyType",  _dirtyType);
@@ -120,7 +128,7 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("sizeImperfections", _sizeImperfections);
     _program->setUniformValue("numberImperfections", _numberImperfections);
 
-    //Ativar e linkar a textura
+    //Ativar e linkar texturas do PBR
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _textureAlbedo);
     unsigned int albedoLocation = glGetUniformLocation(_program->programId(), "Albedo");
@@ -140,14 +148,6 @@ void RenderOpengl::paintGL()
     glBindTexture(GL_TEXTURE_2D, _textureAo);
     unsigned int aoLocation = glGetUniformLocation(_program->programId(), "Ao");
     glUniform1i(aoLocation, 3);
-
-    //Teste normal map
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, _normalMap);
-    unsigned int normaLocation = glGetUniformLocation(_program->programId(), "normalsampler");
-    glUniform1i(normaLocation, 4);
-
-    setMaterialProperties();
 
     //Desenhando os triângulos que formam o cubo
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indexPoints.size()), GL_UNSIGNED_INT, nullptr);
@@ -550,15 +550,6 @@ void RenderOpengl::setSizeImperfections(int n)
 void RenderOpengl::setDirtyType(int dirtyType)
 {
     _dirtyType = dirtyType;
-}
-
-void RenderOpengl::setMaterialProperties()
-{
-    makeCurrent();
-    _program->setUniformValue("material.ambient", QVector4D(0.19, 0.19, 0.19,1));
-    _program->setUniformValue("material.diffuse", QVector4D(0.51, 0.51, 0.51,1));
-    _program->setUniformValue("material.specular", QVector4D(0.51, 0.51, 0.51,1));
-    _program->setUniformValue("material.shininess", 51.2f);
 }
 
 void RenderOpengl::printThings()
