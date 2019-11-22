@@ -1,14 +1,16 @@
 #version 410 core
 const float PI = 3.14159265359;
 
-struct Material //Propriedades do material
+struct Material //Propriedades do material quando se usa o Phong
 {
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
     float shininess;
 };
+uniform Material material;
 
+//Luzes para o PBR
 const int NR_LIGHTS = 4;
 
 struct Light {
@@ -18,10 +20,9 @@ struct Light {
 
 uniform Light lights[NR_LIGHTS]; //Vetor de luzes na posição do olho
 
-uniform Material material;
 
 //Variaveis de entrada
-uniform vec3 light; //Posição da luz no espaço tangente
+uniform vec3 light; //Posição da luz no espaço do olho
 uniform int isOthers; //Variavel indicando se estamos usando outra parte da interface que trata de PBR e Bumps
 uniform int isDirty; //Variavel indicando se no Phong colocamos sujeira com noise
 uniform int dirtyType;
@@ -36,10 +37,7 @@ in vec3 fragNormal;
 in vec3 fragPos;
 in vec2 UV;
 in vec3 worldPos;
-in vec3 worldNorm;
 in vec3 projPos;
-
-in vec3 tangPos;
 
 in vec3 tangente;
 in vec3 bitangente;
@@ -67,6 +65,7 @@ mat3 inverse(mat3 m) {
               b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
 }
 
+//Ruído de Perlin
 vec3 mod289(vec3 x)
 {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -161,6 +160,7 @@ float noise(vec3 P)
   return 2.2 * n_xyz;
 }
 
+//Função de Turbulência
 float turbulence(vec3 pos)
 {
     float z = 0;
@@ -176,6 +176,7 @@ float turbulence(vec3 pos)
     return z;
 }
 
+//Função de Soma de oitavas
 float sumOctaves(vec3 pos)
 {
     float z = 0;
@@ -191,7 +192,22 @@ float sumOctaves(vec3 pos)
     return z + 0.5 ;
 }
 
+//Função de Mármore
+float calculateMarble(vec3 pos)
+{
+    float oct1 =  noise(2*pos)*0.5;
+    float oct2 = noise(4*pos)*0.25;
+    float oct3 = noise(8*pos)*0.25/2;
+    float oct4 = noise(16*pos)*0.25/4;
 
+    float intensity = abs(oct1) + abs(oct2) + abs(oct3) + abs(oct4);
+
+    float sineval = sin(pos.y * 24.0 + intensity * 48.0) * 0.5 + 0.5;
+    return sineval;
+
+}
+
+//Função que calcula z usando apenas a função de Turbulência
 float calculateNoise1(vec3 pos)
 {
     float z = turbulence(pos);
@@ -199,20 +215,14 @@ float calculateNoise1(vec3 pos)
 }
 
 
-
+//Função que calcula z usando apenas a função de Soma de Oitavas
 float calculateNoise2(vec3 pos)
 {
-    float z = 0;
-    float oct1 =  noise(4*pos)*0.5;
-    float oct2 = noise(8*pos)*0.25;
-    float oct3 = noise(16*pos)*0.25/2;
-    float oct4 = noise(32*pos)*0.25/4;
-
-    z =  min(0.1,turbulence(pos));
-//    z = sumOctaves(pos);
+    float z = sumOctaves(pos);;
     return z;
 }
 
+//Função que calcula z de teste
 float calculateNoise3(vec3 pos)
 {
     float z = 0;
@@ -222,15 +232,9 @@ float calculateNoise3(vec3 pos)
     return z;
 }
 
+//Função que calcula z usando min e função de soma de oitavas
 float calculateNoise4(vec3 pos)
 {
-    float z = 0;
-    float oct1 =  noise(4*pos)*0.5;
-    float oct2 = noise(8*pos)*0.25;
-    float oct3 = noise(16*pos)*0.25/2;
-    float oct4 = noise(32*pos)*0.25/4;
-    float oct5 = noise(64*pos)*0.25/8;
-
     float c;
     if(sizeImperfections == 0)
     {
@@ -249,29 +253,36 @@ float calculateNoise4(vec3 pos)
         c = 0.3;
     }
 
-    float z1 = 6*min(c,oct1) + oct1/4;
-    float z2 = 6*min(c,oct2) + oct2/4;
-    float z3 = 6*min(c,oct3) + oct3/4;
-    float z4 = 6*min(c,oct4) + oct4/4;
-    float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
-
-    z =  min(c,sumOctaves(pos));
+    float z =  min(c,sumOctaves(pos));
     return z;
 }
-float calculateMarble(vec3 pos)
+
+//Função que calcula z usando min e função turbulência
+float calculateNoiseTeste(vec3 pos)
 {
-    float oct1 =  noise(2*pos)*0.5;
-    float oct2 = noise(4*pos)*0.25;
-    float oct3 = noise(8*pos)*0.25/2;
-    float oct4 = noise(16*pos)*0.25/4;
+    float c;
+    if(sizeImperfections == 0)
+    {
+        c = 0.05;
+    }
+    else if (sizeImperfections == 1)
+    {
+        c = 0.1;
+    }
+    else if (sizeImperfections == 2)
+    {
+        c = 0.2;
+    }
+    else
+    {
+        c = 0.3;
+    }
 
-    float intensity = abs(oct1) + abs(oct2) + abs(oct3) + abs(oct4);
-
-    float sineval = sin(pos.y * 24.0 + intensity * 48.0) * 0.5 + 0.5;
-    return sineval;
-
+    float  z =  min(c,turbulence(pos));
+    return z;
 }
 
+//Função que calcula z usando min e função de mármore
 float calculateNoiseMarble(vec3 pos)
 {
     float z = 0;
@@ -316,42 +327,6 @@ vec3 calculateMarbleColor(vec3 pos)
     return color;
 }
 
-float calculateNoiseTeste(vec3 pos)
-{
-    float z = 0;
-    float oct1 =  noise(4*pos)*0.5;
-    float oct2 = noise(8*pos)*0.25;
-    float oct3 = noise(16*pos)*0.25/2;
-    float oct4 = noise(32*pos)*0.25/4;
-    float oct5 = noise(64*pos)*0.25/8;
-
-    float c;
-    if(sizeImperfections == 0)
-    {
-        c = 0.05;
-    }
-    else if (sizeImperfections == 1)
-    {
-        c = 0.1;
-    }
-    else if (sizeImperfections == 2)
-    {
-        c = 0.2;
-    }
-    else
-    {
-        c = 0.3;
-    }
-
-    float z1 = 6*min(c,oct1) + oct1/4;
-    float z2 = 6*min(c,oct2) + oct2/4;
-    float z3 = 6*min(c,oct3) + oct3/4;
-    float z4 = 6*min(c,oct4) + oct4/4;
-    float z5 = 2*min(0.1,oct1) + oct1/4 + 6*min(0.03,oct2) + oct2/4;
-
-    z =  min(c,turbulence(pos));
-    return z;
-}
 
 //Funções relativas ao PBR
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
@@ -648,7 +623,6 @@ void main()
         {
             mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
             mat3 inverseTBN = inverse(TBN);
-            vec3 tangPos = TBN * worldPos;
 
             //Sem Bump Nenhum
             if(bumpType == 4)
@@ -785,7 +759,6 @@ void main()
         {
             mat3 TBN = transpose(mat3(tangente,bitangente,fragNormal));
             mat3 inverseTBN = inverse(TBN);
-            vec3 tangPos = TBN * worldPos;
             //Sem Bump Nenhum
             if(bumpType == 4)
             {

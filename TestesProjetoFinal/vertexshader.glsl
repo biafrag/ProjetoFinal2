@@ -14,10 +14,8 @@ out vec3 fragNormal; //Normal no espaço do olho
 out vec3 fragPos; //Posição no espaço do olho
 out vec2 UV; //Coordenada de textura
 out vec3 worldPos; // Posição no espaço do mundo
-out vec3 worldNorm; // Normal no espaço do mundo
-out vec3 tangPos; // Posição no espaço tangente
-out vec3 tangente; // Tangente no espaço do mundo
-out vec3 bitangente; // Bitangente no espaço do mundo
+out vec3 tangente; // Tangente no espaço do olho
+out vec3 bitangente; // Bitangente no espaço do olho
 out vec3 projPos; // Posição no espaço de projeção
 
 void main()
@@ -31,20 +29,15 @@ void main()
     //Posição da normal no espaço do olho
     fragNormal = normalize(( normalMatrix * vec4( vertexNormal, 0 ) ).xyz);
 
-    UV = vertexTexCoord;
-    worldPos = vertexPos;
-    worldNorm = normalize(vertexNormal);
-    projPos = vec3 (gl_Position);
-
     //Posição da tangente no espaço do olho
     vec3 tangentVertexEye = normalize(( normalMatrix * vec4( tangent, 0 ) ).xyz);
 
     //Bitangente no espaço do olho
     vec3 bitangentVertexEye= normalize(cross(fragNormal,tangentVertexEye));
 
-    //Matriz de rotação tbn para transformar luz para o eapaço tangente
-    mat3 rotation = transpose(mat3(tangentVertexEye,bitangentVertexEye,fragNormal));
-
+    UV = vertexTexCoord;
+    worldPos = vertexPos;
+    projPos = vec3 (gl_Position);
     tangente = normalize(tangentVertexEye);
     bitangente = normalize(cross(fragNormal,tangente));
 
