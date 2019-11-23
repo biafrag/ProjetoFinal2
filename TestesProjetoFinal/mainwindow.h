@@ -82,6 +82,8 @@ private slots:
 
     void on_BumpWithColorradioButton_toggled(bool checked);
 
+    void on_actionImport_Mesh_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

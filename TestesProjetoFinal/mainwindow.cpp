@@ -300,3 +300,18 @@ void MainWindow::on_actionSave_image_triggered()
         }
 }
 
+
+void MainWindow::on_actionImport_Mesh_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+    tr("Importar Malha"), "", tr("Arquivos de malha (*.obj)"));
+
+    if (!fileName.isEmpty() )
+    {
+        std::vector<std::string> v;
+        v.push_back(fileName.toStdString());
+        ui->openGLWidget->setFile(v);
+
+    }
+
+}

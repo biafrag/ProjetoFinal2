@@ -324,7 +324,7 @@ void RenderOpengl::getMinMaxMesh()
     //Organiza pontos para ficarem centrados no meio
     for(unsigned int i = 0; i < _points.size(); i++)
     {
-        _points[i] = _points[i] - medium;
+        _points[i] = (_points[i] - medium)/*/_maxMeshPoint.distanceToPoint(_minMeshPoint)*/;
     }
 }
 
@@ -452,6 +452,7 @@ void RenderOpengl::createVAO()
 
 void RenderOpengl::setFile(std::vector<std::string> fileNames)
 {
+        _program->bind();
         std::vector<unsigned int> indexPointsQuad;
         std::vector<unsigned int> indexPointsTriangle;
         std::vector<unsigned int> indexNormalsTriangle;
@@ -464,9 +465,11 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
         _indexPoints.clear();
         _indexNormals.clear();
         _indexTex.clear();
+        _tangents.clear();
 
         for(unsigned int i = 0; i < fileNames.size(); i++)
         {
+            std::cout<<fileNames[i]<<std::endl;
             readFile2(fileNames[i],_points,_normals,_texCoords,indexPointsTriangle,indexPointsQuad,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
         }
         quadToTriangleMesh(indexPointsQuad, indexPointsTriangle,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
@@ -475,6 +478,7 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
         computeTangents();
         printThings();
         _model = glm::mat4x4(1.0);
+         createVAO();
 }
 void RenderOpengl::setMode(MeshTypes type)
 {
@@ -508,8 +512,6 @@ void RenderOpengl::setMode(MeshTypes type)
     {
         setFile({{"../MalhasTeste/MalhasComTextura/robot2.obj"}});
     }
-
-    createVAO();
 
 }
 void RenderOpengl::setOthers(int isOthers)

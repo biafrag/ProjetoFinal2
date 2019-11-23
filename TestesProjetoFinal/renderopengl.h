@@ -66,6 +66,9 @@ public:
      */
     void setDirtyType(int dirtyType);
 
+    void setFile(std::vector<std::string> fileNames); //Define qual será a malha mostrada e lê arquivo
+
+
 private:
     //Classe do qt que permite os shaders serem linkados e usados
     QOpenGLShaderProgram* _program{nullptr}; // Programa OpenGl
@@ -149,7 +152,6 @@ private:
 
 
     //Funções que organizam malha
-    void setFile(std::vector<std::string> fileNames); //Define qual será a malha mostrada e lê arquivo
     void quadToTriangleMesh(std::vector<unsigned int> &indexPointsQuad, std::vector<unsigned int> &indexPointsTriangle, std::vector<unsigned int> &indexNormalsTriangles, std::vector<unsigned int> &indexTexTriangles, std::vector<unsigned int> &indexNormalsQuad, std::vector<unsigned int> &indexTexQuad); //Transforma malha de quads em malha de triângulos
     void organizingData(); // Duplica vértices que precisam ser duplicados (Que possuem índices diferentes do de pontos)
     void getMinMaxMesh(); //Descobre coordenadas de min e max da malha
