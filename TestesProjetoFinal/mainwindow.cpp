@@ -187,6 +187,7 @@ void MainWindow::on_BumpTesteradioButton_toggled(bool checked)
         ui->label_2->show();
         ui->sizeImperfectionsSlider->show();
         ui->numerImperfectionsSlider->show();
+
     }
     else
     {
@@ -237,6 +238,50 @@ void MainWindow::on_Bump4radioButton_toggled(bool checked)
     }
 }
 
+void MainWindow::on_BumpMarbleradioButton_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->label->show();
+        ui->label_2->show();
+        ui->sizeImperfectionsSlider->show();
+        ui->numerImperfectionsSlider->show();
+    }
+    else
+    {
+        ui->label->hide();
+        ui->label_2->hide();
+        ui->sizeImperfectionsSlider->hide();
+        ui->numerImperfectionsSlider->hide();
+    }
+}
+
+void MainWindow::on_BumpWithColorradioButton_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->label->show();
+        ui->label_2->show();
+        ui->sizeImperfectionsSlider->show();
+        ui->numerImperfectionsSlider->show();
+
+        ui->DirtyCheckBox->show();
+        ui->DirtySlider->show();
+        ui->MarbleCheckBox->show();    }
+    else
+    {
+        ui->label->hide();
+        ui->label_2->hide();
+        ui->sizeImperfectionsSlider->hide();
+        ui->numerImperfectionsSlider->hide();
+
+        ui->DirtyCheckBox->hide();
+        ui->DirtySlider->hide();
+        ui->MarbleCheckBox->hide();
+    }
+
+}
+
 void MainWindow::on_DirtySlider_valueChanged(int value)
 {
     ui->openGLWidget->setDirtyType(value);
@@ -254,3 +299,4 @@ void MainWindow::on_actionSave_image_triggered()
 
         }
 }
+

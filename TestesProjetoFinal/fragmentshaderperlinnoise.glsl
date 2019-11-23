@@ -161,6 +161,7 @@ float noise(vec3 P)
   return 2.2 * n_xyz;
 }
 
+
 //Função de Turbulência
 float turbulence(vec3 pos)
 {
@@ -201,6 +202,7 @@ float calculateMarble(vec3 pos)
 
     //Função boa que concentra imperfeições nas extremidades
     float sineval = sin(pos.y  + intensity * 2.0) * 0.5 + 0.5;
+    //float sineval = sin(pos.y  + intensity * 2.0) * 0.5 + 0.2;
     return sineval;
 
 }
@@ -216,7 +218,7 @@ float calculateNoise1(vec3 pos)
 //Função que calcula z usando apenas a função de Soma de Oitavas
 float calculateNoise2(vec3 pos)
 {
-    float z = sumOctaves(pos);;
+    float z = sumOctaves(pos);
     return z;
 }
 
@@ -283,7 +285,6 @@ float calculateNoiseTeste(vec3 pos)
 //Função que calcula z usando min e função de mármore
 float calculateNoiseMarble(vec3 pos)
 {
-    float z = 0;
 
     float c;
     if(sizeImperfections == 0)
@@ -292,18 +293,18 @@ float calculateNoiseMarble(vec3 pos)
     }
     else if (sizeImperfections == 1)
     {
-        c = 0.1;
+        c = 0.2;
     }
     else if (sizeImperfections == 2)
     {
-        c = 0.2;
+        c = 0.4;
     }
     else
     {
-        c = 0.3;
+        c = 0.6;
     }
 
-    z =  min(c,calculateMarble(pos));
+    float z =  min(c,calculateMarble(pos));
     return z;
 
 }
@@ -411,19 +412,30 @@ vec3 calculateNormal(int type)
     }
     else // Sendo usado por enquanto no bump com cor
     {
-        if(dirtyType == 0)
+        if(isMarble == 1)
         {
-            left.z = calculateNoiseTeste(worldPos - dFdx(worldPos));
-            right.z = calculateNoiseTeste(worldPos + dFdx(worldPos));
-            up.z = calculateNoiseTeste(worldPos + dFdy(worldPos));
-            down.z = calculateNoiseTeste(worldPos - dFdy(worldPos));
+            left.z = calculateNoiseMarble(worldPos - dFdx(worldPos));
+            right.z = calculateNoiseMarble(worldPos + dFdx(worldPos));
+            up.z = calculateNoiseMarble(worldPos + dFdy(worldPos));
+            down.z = calculateNoiseMarble(worldPos - dFdy(worldPos));
         }
         else
         {
-            left.z = calculateNoise4(worldPos - dFdx(worldPos));
-            right.z = calculateNoise4(worldPos + dFdx(worldPos));
-            up.z = calculateNoise4(worldPos + dFdy(worldPos));
-            down.z = calculateNoise4(worldPos - dFdy(worldPos));
+            if(dirtyType == 0)
+            {
+                left.z = calculateNoiseTeste(worldPos - dFdx(worldPos));
+                right.z = calculateNoiseTeste(worldPos + dFdx(worldPos));
+                up.z = calculateNoiseTeste(worldPos + dFdy(worldPos));
+                down.z = calculateNoiseTeste(worldPos - dFdy(worldPos));
+            }
+            else
+            {
+                left.z = calculateNoise4(worldPos - dFdx(worldPos));
+                right.z = calculateNoise4(worldPos + dFdx(worldPos));
+                up.z = calculateNoise4(worldPos + dFdy(worldPos));
+                down.z = calculateNoise4(worldPos - dFdy(worldPos));
+            }
+
         }
      }
 
@@ -485,14 +497,22 @@ void main()
 {
     float f;
 
-    if(dirtyType == 0)
+    if(isMarble == 1)
     {
-        f = turbulence(worldPos);
+        f = calculateMarble(worldPos);
     }
     else
     {
-        f = sumOctaves(worldPos);
+        if(dirtyType == 0)
+        {
+            f = turbulence(worldPos);
+        }
+        else
+        {
+            f = sumOctaves(worldPos);
+        }
     }
+
     vec3 objectColor = vec3(1, 1, 1);
     vec3 dirtColor = vec3(0.19125, 0.0735, 0.0225);
     vec3 colorNoise = mix(objectColor,dirtColor,f);

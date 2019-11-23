@@ -116,7 +116,6 @@ void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector
                   indexNormalsTriangles.push_back(v[3*i + 2] - 1);
               }
           }
-          v.clear();
       }
     }
     myfile.close();

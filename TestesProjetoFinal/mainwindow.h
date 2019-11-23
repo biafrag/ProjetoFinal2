@@ -23,6 +23,8 @@ private slots:
 
     void on_ROBObutton_clicked();
 
+
+
     void on_checkBox_clicked(bool checked);
 
     void on_GoldRadioButton_clicked();
@@ -75,6 +77,10 @@ private slots:
     void on_DirtySlider_valueChanged(int value);
 
     void on_actionSave_image_triggered();
+
+    void on_BumpMarbleradioButton_toggled(bool checked);
+
+    void on_BumpWithColorradioButton_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
