@@ -1,7 +1,6 @@
 #include "renderopengl.h"
 #include <QImage>
 #include<QGLWidget>
-#include "reader.h"
 #include "reader2.h"
 #include "readeroff.h"
 #include "math.h"

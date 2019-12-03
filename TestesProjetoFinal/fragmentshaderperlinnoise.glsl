@@ -167,13 +167,17 @@ float turbulence(vec3 pos)
 {
     float z = 0;
     float frequency = 4;
+    float amplitude = 0.5;
     float persistency = 0.5;
+    float lacunarity = 2;
+
     int numOctaves = 4;
     for(int i = 0; i < numOctaves;i++)
     {
-        z += abs(noise(frequency * pos)) * persistency;
-        frequency *= 2;
-        persistency /= 2;
+        float octave = noise(frequency * pos) * amplitude;
+        z += abs(octave);
+        frequency *= lacunarity;
+        amplitude *= persistency;
     }
     return z;
 }
@@ -183,26 +187,27 @@ float sumOctaves(vec3 pos)
 {
     float z = 0;
     float frequency = 4;
+    float amplitude = 0.5;
     float persistency = 0.5;
+    float lacunarity = 2;
+
     int numOctaves = 4;
-    for(int i = 0; i < 20;i++)
+    for(int i = 0; i < numOctaves;i++)
     {
-        z += noise(frequency * pos) * persistency;
-        frequency *= 2;
-        persistency /= 2;
+        float octave = noise(frequency * pos) * amplitude;
+        z += octave;
+        frequency *= lacunarity;
+        amplitude *= persistency;
     }
-    return z + 0.5 ;
+    return z + 0.5;
 }
 
 //Função de Mármore
 float calculateMarble(vec3 pos)
 {
 
-    float intensity = turbulence(pos);
-
-    //Função boa que concentra imperfeições nas extremidades
-    float sineval = sin(pos.y  + intensity * 2.0) * 0.5 + 0.5;
-    //float sineval = sin(pos.y  + intensity * 2.0) * 0.5 + 0.2;
+    float intensity = sumOctaves(pos);
+    float sineval = abs(sin(pos.x*40.0 + intensity * 12.0));
     return sineval;
 
 }
@@ -225,10 +230,7 @@ float calculateNoise2(vec3 pos)
 //Função que calcula z de teste
 float calculateNoise3(vec3 pos)
 {
-    float z = 0;
-    float oct1 =  noise(4*pos)*0.5;
-    float oct2 = noise(8*pos)*0.25;
-    z = abs(oct1 - 0.3) * oct2/oct1;
+    float z = calculateMarble(pos);
     return z;
 }
 
@@ -646,7 +648,7 @@ void main()
             {
                 vec3 albedo = texture(Albedo,UV).rgb;
                 float metallic = texture(Metallic,UV).r;
-                float roughness = colorNoise.r;
+                float roughness = colorNoise.r/*texture(Roughness,UV).r*/;
                 float ao = texture(Ao,UV).r;
                 vec3 N = normalize(fragNormal);
                 vec3 color = PBRColor(albedo,roughness,metallic,ao,N);
@@ -657,7 +659,7 @@ void main()
                 vec3 normal = calculateNormal(bumpType);
                 vec3 albedo = texture(Albedo,UV).rgb;
                 float metallic = texture(Metallic,UV).r;
-                float roughness = colorNoise.r;
+                float roughness = colorNoise.r/*texture(Roughness,UV).r*/;
                 float ao = texture(Ao,UV).r;
 
                 vec3 N = inverseTBN * normal;

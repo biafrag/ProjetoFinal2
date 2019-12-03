@@ -157,7 +157,6 @@ private:
     void getMinMaxMesh(); //Descobre coordenadas de min e max da malha
     void computeTangents(); // Calcula tangentes das malhas
     void createPBRTextures(const std::vector<std::string> imagePath); // Cria, define e seta texturas usadas no PBR
-
     //Teste Normal Map
     void printThings();
 

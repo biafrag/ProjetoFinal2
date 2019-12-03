@@ -43,8 +43,7 @@ FORMS += \
 RESOURCES += \
     shader.qrc
 
-DISTFILES += \
-    vertexshader.glsl
+DISTFILES +=
 
 
 win32{
