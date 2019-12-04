@@ -30,6 +30,7 @@ uniform int option; //Variável indicando qual o tipo de PBR(sem noise, com nois
 uniform int bumpType; //Variável indicando qual o tipo de bump
 uniform int sizeImperfections; //Variável indicando qual o tamanho das imperfeições
 uniform int numberImperfections; //Variável indicando quanto tem de imperfeições
+uniform float distance;
 
 //TExturas para PBR
 uniform sampler2D Albedo;
@@ -191,7 +192,7 @@ float sumOctaves(vec3 pos)
     float persistency = 0.5;
     float lacunarity = 2;
 
-    int numOctaves = 4;
+    int numOctaves = 7;
     for(int i = 0; i < numOctaves;i++)
     {
         float octave = noise(frequency * pos) * amplitude;
@@ -206,10 +207,10 @@ float sumOctaves(vec3 pos)
 float calculateMarble(vec3 pos)
 {
 
-    float intensity = sumOctaves(pos);
-    float sineval = abs(sin(pos.x*40.0 + intensity * 12.0));
-    return sineval;
+    float intensity = sumOctaves(pos/distance);
+    float sineval = abs(sin((pos.x/distance)*40.0 + intensity * 12.0));
 
+    return sineval;
 }
 
 //Função que calcula z usando apenas a função de Turbulência

@@ -126,6 +126,7 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("bumpType", _bumpType);
     _program->setUniformValue("sizeImperfections", _sizeImperfections);
     _program->setUniformValue("numberImperfections", _numberImperfections);
+    _program->setUniformValue("distance",_maxMeshPoint.distanceToPoint(_minMeshPoint));
 
     //Ativar e linkar texturas do PBR
     glActiveTexture(GL_TEXTURE0);
