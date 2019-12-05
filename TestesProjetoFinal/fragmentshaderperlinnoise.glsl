@@ -161,7 +161,6 @@ float noise(vec3 P)
   return 2.2 * n_xyz;
 }
 
-
 //Função de Turbulência
 float turbulence(vec3 pos)
 {
@@ -233,9 +232,8 @@ float calculateNoise3(vec3 pos)
     float z = calculateMarble(pos);
     return z;
 }
-
-//Função que calcula z usando min e função de soma de oitavas
-float calculateNoise4(vec3 pos)
+//Função que vê qual será o número que irá filtrar valores que usam o ruído
+float calculateFilter()
 {
     float c;
     if(sizeImperfections == 0)
@@ -254,7 +252,13 @@ float calculateNoise4(vec3 pos)
     {
         c = 0.3;
     }
+    return c;
+}
 
+//Função que calcula z usando min e função de soma de oitavas
+float calculateNoise4(vec3 pos)
+{
+    float c = calculateFilter();
     float z =  min(c,sumOctaves(pos));
     return z;
 }
@@ -262,24 +266,7 @@ float calculateNoise4(vec3 pos)
 //Função que calcula z usando min e função turbulência
 float calculateNoiseTeste(vec3 pos)
 {
-    float c;
-    if(sizeImperfections == 0)
-    {
-        c = 0.05;
-    }
-    else if (sizeImperfections == 1)
-    {
-        c = 0.1;
-    }
-    else if (sizeImperfections == 2)
-    {
-        c = 0.2;
-    }
-    else
-    {
-        c = 0.3;
-    }
-
+    float c = calculateFilter();
     float  z =  min(c,turbulence(pos));
     return z;
 }
@@ -288,24 +275,7 @@ float calculateNoiseTeste(vec3 pos)
 float calculateNoiseMarble(vec3 pos)
 {
 
-    float c;
-    if(sizeImperfections == 0)
-    {
-        c = 0.05;
-    }
-    else if (sizeImperfections == 1)
-    {
-        c = 0.2;
-    }
-    else if (sizeImperfections == 2)
-    {
-        c = 0.4;
-    }
-    else
-    {
-        c = 0.6;
-    }
-
+    float c = calculateFilter();
     float z =  min(c,calculateMarble(pos));
     return z;
 
@@ -319,9 +289,20 @@ vec3 calculateMarbleColor(vec3 pos)
     return color;
 }
 
+vec3 calculateBumpColor(float f, vec3 colorNoise)
+{
+    float c = calculateFilter();
+    if(f < c)
+    {
+        return colorNoise;
+    }
+    else
+    {
+        return vec3(1,0.8,0);
+    }
+}
 
 //Funções relativas ao PBR
-
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
@@ -612,15 +593,8 @@ void main()
                      vec3 color1 = vec3(1, 1, 1);
                      vec3 color2 = vec3(0.19125, 0.0735, 0.0225);
                      colorNoise = mix(color2,color1,f);
-
-                     if(colorNoise.x < 0.3 + sizeImperfections*0.1 && colorNoise.y < 0.1 + sizeImperfections*0.1 && colorNoise.z < 0.05 + sizeImperfections*0.1)
-                     {
-                         finalColor = vec4(vec3(ambient)*colorNoise + vec3(diffuse)*colorNoise + vec3(specular),1);
-                     }
-                     else
-                     {
-                          finalColor = vec4(vec3(ambient)*vec3(1,0.8,0) + vec3(diffuse)*vec3(1,0.8,0) + vec3(specular),1);
-                     }
+                     vec4 color = vec4(calculateBumpColor(f, colorNoise),1);
+                     finalColor = ambient*color + diffuse*color + specular;
 
                 }
             }
@@ -672,7 +646,8 @@ void main()
                     objectColor = vec3(1, 1, 1);
                     dirtColor = vec3(0.7, 0.5, 0.3);
                     colorNoise = mix(dirtColor,objectColor,f);
-                    if(colorNoise.x < 0.7 + sizeImperfections*0.075 && colorNoise.y < 0.5 + sizeImperfections*0.075 && colorNoise.z < 0.3 + sizeImperfections*0.075)
+                    float c = calculateFilter();
+                    if(f < c)
                     {
                       finalColor = vec4(color*colorNoise, 1.0);
                     }
