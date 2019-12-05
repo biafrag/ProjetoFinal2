@@ -6,7 +6,7 @@
 #include <QVector3D>
 #include <QVector2D>
 #include <sstream>
-void readFile2(std::string fileName, std::vector<QVector3D>& points, std::vector<QVector3D>& normals, std::vector<QVector2D>& texCoords, std::vector<unsigned int>& indexPointsTriangles,std::vector<unsigned int>& indexPointsQuads, std::vector<unsigned int>& indexNormalsTriangles, std::vector<unsigned int>& indexTexTriangles, std::vector<unsigned int>& indexNormalsQuads,std::vector<unsigned int>& indexTexQuads)
+void readFile(std::string fileName, std::vector<QVector3D>& points, std::vector<QVector3D>& normals, std::vector<QVector2D>& texCoords, std::vector<unsigned int>& indexPointsTriangles,std::vector<unsigned int>& indexPointsQuads, std::vector<unsigned int>& indexNormalsTriangles, std::vector<unsigned int>& indexTexTriangles, std::vector<unsigned int>& indexNormalsQuads,std::vector<unsigned int>& indexTexQuads)
 {
     std::string line;
     std::string type = " ";

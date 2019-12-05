@@ -31,11 +31,8 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     renderopengl.h \
-    reader.h \
-    readeroff.h \
     meshtypes.h \
-    reader2.h \
-    reader3.h
+    reader2.h
 
 FORMS += \
         mainwindow.ui

@@ -2,7 +2,6 @@
 #include <QImage>
 #include<QGLWidget>
 #include "reader2.h"
-#include "readeroff.h"
 #include "math.h"
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -125,7 +124,6 @@ void RenderOpengl::paintGL()
     _program->setUniformValue("option", (int)_option);
     _program->setUniformValue("bumpType", _bumpType);
     _program->setUniformValue("sizeImperfections", _sizeImperfections);
-    _program->setUniformValue("numberImperfections", _numberImperfections);
     _program->setUniformValue("distance",_maxMeshPoint.distanceToPoint(_minMeshPoint));
 
     //Ativar e linkar texturas do PBR
@@ -335,7 +333,7 @@ void RenderOpengl::computeTangents()
     std::vector<QVector3D> tanB;
     tanA.resize(_points.size());
     tanB.resize(_points.size());
-    for(int i = 0; i< tanA.size();i++)
+    for(unsigned int i = 0; i< tanA.size();i++)
     {
         tanA[i] = QVector3D(0,0,0);
         tanB[i] = QVector3D(0,0,0);
@@ -391,7 +389,6 @@ void RenderOpengl::computeTangents()
         {
             QVector3D n = _normals[i];
             QVector3D t0 = tanA[i];
-            QVector3D t1 = tanB[i];
 
             QVector3D t = t0 - (n * QVector3D::dotProduct(n, t0));
             t.normalize();
@@ -469,8 +466,7 @@ void RenderOpengl::setFile(std::vector<std::string> fileNames)
 
         for(unsigned int i = 0; i < fileNames.size(); i++)
         {
-            std::cout<<fileNames[i]<<std::endl;
-            readFile2(fileNames[i],_points,_normals,_texCoords,indexPointsTriangle,indexPointsQuad,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
+            readFile(fileNames[i],_points,_normals,_texCoords,indexPointsTriangle,indexPointsQuad,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
         }
         quadToTriangleMesh(indexPointsQuad, indexPointsTriangle,indexNormalsTriangle,indexTexTriangle,indexNormalsQuads,indexTexQuads);
         organizingData();
@@ -537,11 +533,6 @@ void RenderOpengl::setBumpType(int bumpType)
 void RenderOpengl::setOption(Options option)
 {
     _option = option;
-}
-
-void RenderOpengl::setNumberImperfections(int n)
-{
-    _numberImperfections = n;
 }
 
 void RenderOpengl::setSizeImperfections(int n)

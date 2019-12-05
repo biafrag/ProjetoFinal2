@@ -29,7 +29,6 @@ uniform int isMarble; //Variavel indicando se é marmore
 uniform int option; //Variável indicando qual o tipo de PBR(sem noise, com noise no albedo etc) ou tipo  do Phong
 uniform int bumpType; //Variável indicando qual o tipo de bump
 uniform int sizeImperfections; //Variável indicando qual o tamanho das imperfeições
-uniform int numberImperfections; //Variável indicando quanto tem de imperfeições
 uniform float distance;
 
 //TExturas para PBR

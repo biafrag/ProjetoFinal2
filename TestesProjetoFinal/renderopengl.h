@@ -56,8 +56,16 @@ public:
     void setBumpType(int bumpType);
 
 
+    /**
+     * @brief setOption - Define qual é a opção do usuário: Sem noise, com bump,PBR com Albedo modificado etc.
+     * @param option - A opção
+     */
     void setOption(Options option);
-    void setNumberImperfections(int n);
+
+    /**
+     * @brief setOption - Define qual será o tamanho das imperfeições.
+     * @param n - O índice do tamanho, quanto maior o índice, maior o tamanho.
+     */
     void setSizeImperfections(int n);
 
     /**
@@ -131,7 +139,6 @@ private:
    int _isOthers{0};
    int _isDirty{1};
    int _bumpType{4};
-   int _numberImperfections{0};
    int _sizeImperfections{0};
    int _isMarble{0};
    int _dirtyType{0};

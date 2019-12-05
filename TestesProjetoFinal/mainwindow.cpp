@@ -8,10 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->groupBox_2->hide();
     ui->groupBox_3->hide();
-    ui->label->hide();
     ui->label_2->hide();
     ui->sizeImperfectionsSlider->hide();
-    ui->numerImperfectionsSlider->hide();
 }
 
 MainWindow::~MainWindow()
@@ -173,28 +171,19 @@ void MainWindow::on_PBRgBumpRadioButton_toggled(bool checked)
 }
 
 
-void MainWindow::on_numerImperfectionsSlider_valueChanged(int value)
-{
-    ui->openGLWidget->setNumberImperfections(value);
-
-}
 
 void MainWindow::on_BumpTesteradioButton_toggled(bool checked)
 {
     if(checked)
     {
-        ui->label->show();
         ui->label_2->show();
         ui->sizeImperfectionsSlider->show();
-        ui->numerImperfectionsSlider->show();
 
     }
     else
     {
-        ui->label->hide();
         ui->label_2->hide();
         ui->sizeImperfectionsSlider->hide();
-        ui->numerImperfectionsSlider->hide();
     }
 }
 
@@ -224,17 +213,13 @@ void MainWindow::on_Bump4radioButton_toggled(bool checked)
 {
     if(checked)
     {
-        ui->label->show();
         ui->label_2->show();
         ui->sizeImperfectionsSlider->show();
-        ui->numerImperfectionsSlider->show();
     }
     else
     {
-        ui->label->hide();
         ui->label_2->hide();
         ui->sizeImperfectionsSlider->hide();
-        ui->numerImperfectionsSlider->hide();
     }
 }
 
@@ -242,17 +227,13 @@ void MainWindow::on_BumpMarbleradioButton_toggled(bool checked)
 {
     if(checked)
     {
-        ui->label->show();
         ui->label_2->show();
         ui->sizeImperfectionsSlider->show();
-        ui->numerImperfectionsSlider->show();
     }
     else
     {
-        ui->label->hide();
         ui->label_2->hide();
         ui->sizeImperfectionsSlider->hide();
-        ui->numerImperfectionsSlider->hide();
     }
 }
 
@@ -260,20 +241,15 @@ void MainWindow::on_BumpWithColorradioButton_toggled(bool checked)
 {
     if(checked)
     {
-        ui->label->show();
         ui->label_2->show();
         ui->sizeImperfectionsSlider->show();
-        ui->numerImperfectionsSlider->show();
-
         ui->DirtyCheckBox->show();
         ui->DirtySlider->show();
         ui->MarbleCheckBox->show();    }
     else
     {
-        ui->label->hide();
         ui->label_2->hide();
         ui->sizeImperfectionsSlider->hide();
-        ui->numerImperfectionsSlider->hide();
 
         ui->DirtyCheckBox->hide();
         ui->DirtySlider->hide();

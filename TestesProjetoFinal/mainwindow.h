@@ -62,7 +62,6 @@ private slots:
 
     void on_BumpTesteradioButton_clicked();
 
-    void on_numerImperfectionsSlider_valueChanged(int value);
 
     void on_BumpTesteradioButton_toggled(bool checked);
 
