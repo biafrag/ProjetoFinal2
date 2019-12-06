@@ -207,7 +207,7 @@ float calculateMarble(vec3 pos)
 
     float intensity = sumOctaves(pos/distance);
     float sineval = abs(sin((pos.x/distance)*40.0 + intensity * 12.0));
-
+//    float sineval = sin(pos.y  + intensity * 2.0) * 1.5 + 0.2;
     return sineval;
 }
 
@@ -294,11 +294,26 @@ vec3 calculateBumpColor(float f, vec3 colorNoise)
     float c = calculateFilter();
     if(f < c)
     {
-        return colorNoise;
+       return colorNoise;
     }
     else
     {
         return vec3(1,0.8,0);
+
+    }
+}
+
+vec3 calculateBumpColorPBR(float f, vec3 colorNoise, vec3 color)
+{
+    float c = calculateFilter();
+    if(f < c)
+    {
+       return colorNoise;
+    }
+    else
+    {
+        return vec3(0.8,0.8,0.8);
+
     }
 }
 
@@ -569,7 +584,7 @@ void main()
                 vec3 normal = calculateNormal(bumpType);
 
                 vec4 ambient = material.ambient;
-                vec3 N = inverseTBN * normal;
+                vec3 N = normalize(inverseTBN * normal);
                 vec3 V = normalize(-fragPos);
                 vec3 L = normalize(light - fragPos);
 
@@ -593,7 +608,7 @@ void main()
                      vec3 color1 = vec3(1, 1, 1);
                      vec3 color2 = vec3(0.19125, 0.0735, 0.0225);
                      colorNoise = mix(color2,color1,f);
-                     vec4 color = vec4(calculateBumpColor(f, colorNoise),1);
+                     vec4 color = vec4(calculateBumpColor(f, colorNoise) ,1);
                      finalColor = ambient*color + diffuse*color + specular;
 
                 }
@@ -622,7 +637,7 @@ void main()
             {
                 vec3 albedo = texture(Albedo,UV).rgb;
                 float metallic = texture(Metallic,UV).r;
-                float roughness = colorNoise.r/*texture(Roughness,UV).r*/;
+                float roughness = colorNoise.r;
                 float ao = texture(Ao,UV).r;
                 vec3 N = normalize(fragNormal);
                 vec3 color = PBRColor(albedo,roughness,metallic,ao,N);
@@ -630,13 +645,14 @@ void main()
             }
             else
             {
+                vec3 colorSum = mix(objectColor,dirtColor,sumOctaves(worldPos));
                 vec3 normal = calculateNormal(bumpType);
                 vec3 albedo = texture(Albedo,UV).rgb;
                 float metallic = texture(Metallic,UV).r;
-                float roughness = colorNoise.r/*texture(Roughness,UV).r*/;
+                float roughness = colorSum.r;
                 float ao = texture(Ao,UV).r;
 
-                vec3 N = inverseTBN * normal;
+                vec3 N = normalize(inverseTBN * normal);
                 vec3 color = PBRColor(albedo,roughness,metallic,ao,N);
                 finalColor = vec4(color, 1.0);
 
@@ -646,11 +662,8 @@ void main()
                     objectColor = vec3(1, 1, 1);
                     dirtColor = vec3(0.7, 0.5, 0.3);
                     colorNoise = mix(dirtColor,objectColor,f);
-                    float c = calculateFilter();
-                    if(f < c)
-                    {
-                      finalColor = vec4(color*colorNoise, 1.0);
-                    }
+                    vec3 color2 = calculateBumpColorPBR(f, colorNoise,color);
+                    finalColor = vec4(color*color2, 1.0);
 
                 }
 
